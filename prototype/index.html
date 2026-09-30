@@ -713,8 +713,8 @@ window.addEventListener('keydown', e => {
 
 // ---------- живая связь (комната), если страница это умеет ----------
 let room = null, peers = [], liveMirror = null, liveResult = null, lastDodgeSeen = 0;
-const modelPeer = () => peers.find(p => !p.isMe && p.presence && p.presence.role==='model');
-const shooterPeer = () => peers.find(p => !p.isMe && p.presence && p.presence.role==='shooter');
+const modelPeer = () => peers.find(p => !p.sameTab && p.presence && p.presence.role==='model');
+const shooterPeer = () => peers.find(p => !p.sameTab && p.presence && p.presence.role==='shooter');
 let myRole = null; // 'shooter' | 'model'
 (async () => {
   try{ if(!window.claude || !window.claude.use) return; room = await window.claude.use('room'); if(!room) return;
@@ -862,7 +862,7 @@ function renderLive(){
   const phaseName = { menu:'ждём раунд', countdown:'сейчас начнётся', play:'КРАСЯТ', reveal:'раскрытие' }[pr.phase] || 'ждём раунд';
   $('livePhase').textContent = phaseName + ' · ' + (LOCATIONS[pr.loc] ? LOCATIONS[pr.loc].name : '');
   if(pr.phase!==lastShooterPhase){ lastShooterPhase = pr.phase; if(pr.phase==='countdown'){ liveState.hand = 3; liveState.handOn=false; $('btnHand').textContent='Ладонь (3)'; $('liveResult').textContent=''; $('mirrorWrap').style.display='none'; pushModelPresence(); } }
-  if(pr.phase==='play' && pr.roundEndIn!=null){ const left = Math.max(0, Math.round((pr.roundEndIn - (Date.now()-pr.sentAt))/1000)); $('liveTimer').textContent = left; }
+  if(pr.phase==='play' && pr.roundEndIn!=null){ const left = Math.max(0, Math.round((pr.roundEndIn - (Date.now()-sp.updatedAt))/1000)); $('liveTimer').textContent = left; }
   else $('liveTimer').textContent = pr.phase==='reveal' ? 'СТОП' : '—';
   if(pr.mirror){ $('mirrorWrap').style.display='flex'; drawGridImage($('mirror'), pr.mirror); }
   if(pr.phase==='reveal' && pr.result){ const bet = +$('betRange').value; const won = Math.abs(bet-pr.result.match)<=10; $('liveResult').textContent = 'Результат: '+pr.result.match+'% · '+'★'.repeat(pr.result.stars)+'☆'.repeat(3-pr.result.stars)+' · ставка '+bet+'% '+(won?'сыграла!':'мимо'); }
