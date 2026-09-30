@@ -9,10 +9,10 @@
 <title>Makeup Sniper</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Caveat:wght@700&display=swap">
 <style>
-/* Раскладка: 3D-сцена на весь экран, поверх неё HTML-экраны (меню, карточка Модели, полароид). Стиль: пастельный «салон красоты», один светлый вид. */
+/* Раскладка: 3D-сцена на весь экран, поверх неё HTML-экраны (меню, карьера, карточка Модели, полароид). Стиль: пастельный «салон красоты», один светлый вид. */
 :root{
   --bg:#f7e8ee; --fg:#3a2331; --muted:#8c6b7a; --panel:#fffafc; --line:#ecd2dd;
-  --accent:#e63c6f; --accent-soft:#f9b9cf; --ink:#1e1522; --ok:#2e9c68; --bad:#d64a4a; --tape:#f2c94c;
+  --accent:#e63c6f; --accent-soft:#f9b9cf; --ink:#1e1522; --ok:#2e9c68; --bad:#d64a4a; --tape:#f2c94c; --gold:#e0a91c;
   --font:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
   --marker:"Caveat","Segoe Print","Comic Sans MS",cursive;
   color-scheme:light;
@@ -25,7 +25,8 @@ button{font:inherit;cursor:pointer}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b52753}
 .btn.secondary{background:var(--panel);color:var(--fg);box-shadow:0 4px 0 var(--line);border:2px solid var(--line)}
 .btn.secondary:active{box-shadow:0 1px 0 var(--line)}
-.btn:focus-visible,input:focus-visible{outline:3px solid #7fb3ff;outline-offset:2px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #7fb3ff;outline-offset:2px}
 .btn.big{font-size:22px;padding:18px 28px;width:100%;max-width:420px}
 
 #stage{position:absolute;inset:0;background:#f3e4ea}
@@ -44,31 +45,65 @@ button{font:inherit;cursor:pointer}
 .screen h2{font-size:26px;margin:0;font-weight:900;text-align:center;text-wrap:balance}
 .card{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:20px;max-width:560px;width:100%;box-sizing:border-box;min-width:0}
 .card p{margin:0 0 10px}
-.card ol{margin:0;padding-left:22px}
+.card ol,.card ul{margin:0;padding-left:22px}
 .card li{margin:6px 0}
 .muted{color:var(--muted)}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:100%;max-width:560px}
 .row .btn{flex:1 1 200px}
-.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:#fff;font-weight:700;font-size:.9em}
+.small{font-size:14px}
+.chip{display:inline-block;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line)}
+.chip.on{background:var(--ok);color:#fff;border-color:var(--ok)}
+.chip.off{background:var(--line);color:var(--muted)}
+.taboo{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.taboo span{background:#fff;border:2px dashed var(--bad);color:var(--bad);border-radius:8px;padding:2px 8px;font-weight:700;text-decoration:line-through}
+
+/* карьера */
+#career .loc{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px 16px;width:100%;max-width:560px;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;cursor:pointer;min-width:0}
+#career .loc.locked{opacity:.55;cursor:default}
+#career .loc:not(.locked):hover{border-color:var(--accent-soft)}
+#career .loc .nm{font-weight:900;font-size:20px}
+#career .loc .stars{font-size:22px;color:var(--gold);letter-spacing:.05em;white-space:nowrap}
+#career .loc .ds{grid-column:1/-1;font-size:14px;color:var(--muted)}
+#career .loc .need{grid-column:1/-1;font-size:13px;color:var(--bad);font-weight:700}
 
 /* карточка Модели */
+.locpick{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;width:100%;max-width:560px}
+.locpick .btn{padding:14px}
 #refGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;width:100%;max-width:760px}
-.refcard{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .1s}
+.refcard{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .1s;min-width:0}
 .refcard:hover{transform:translateY(-2px);border-color:var(--accent-soft)}
-.refcard canvas{width:100%;max-width:220px;aspect-ratio:1;border-radius:12px;background:#fff}
-.refcard .name{font-weight:900;font-size:20px}
+.refcard .faces{display:flex;gap:6px;width:100%;justify-content:center}
+.refcard canvas{width:100%;max-width:220px;aspect-ratio:1;border-radius:12px;background:#fff;min-width:0}
+.refcard .faces canvas{flex:1 1 0}
+.refcard .name{font-weight:900;font-size:20px;text-align:center}
 .refcard .code{font-family:var(--marker);font-size:34px;color:var(--accent);letter-spacing:.08em;font-variant-numeric:tabular-nums}
-#refOne{display:none;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:520px}
-#refOne canvas{width:100%;max-width:360px;aspect-ratio:1;border-radius:16px;background:#fff;border:2px solid var(--line)}
+#refOne{display:none;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:560px}
+#refOne .faces{display:flex;gap:10px;width:100%;justify-content:center}
+#refOne canvas.face{flex:1 1 0;min-width:0;max-width:360px;aspect-ratio:1;border-radius:16px;background:#fff;border:2px solid var(--line)}
 #refOne .code{font-family:var(--marker);font-size:64px;color:var(--accent);letter-spacing:.1em;line-height:1;font-variant-numeric:tabular-nums}
 .zonelist{display:flex;flex-direction:column;gap:6px;width:100%}
 .zonelist div{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:500}
+.zonelist .who{margin-left:auto;font-size:12px;color:var(--muted)}
 .swatch{width:20px;height:20px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line);flex:none}
 #modelTimer{font-size:44px;font-weight:900;font-variant-numeric:tabular-nums}
+.bet{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bet input[type=range]{width:100%;max-width:360px}
+.bet b{font-size:24px;color:var(--accent)}
+/* живой пульт Модели */
+#live{width:100%;max-width:560px;display:none;flex-direction:column;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px;box-sizing:border-box}
+#liveTimer{font-size:52px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+#pad{display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,72px);gap:6px;touch-action:none;user-select:none}
+#pad button{font-size:28px;border-radius:14px;border:2px solid var(--line);background:#fff;color:var(--fg);touch-action:none}
+#pad button:active,#pad button.held{background:var(--accent);color:#fff;border-color:var(--accent)}
+#pad .c{background:var(--line);border-color:var(--line)}
+.liveRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%}
+.liveRow .btn{flex:1 1 140px;padding:12px}
+#mirrorWrap{display:none;flex-direction:column;align-items:center;gap:4px}
+#mirrorWrap canvas{width:160px;height:160px;border-radius:50%;border:4px solid #fff;box-shadow:0 4px 16px rgba(30,21,34,.25)}
+#liveResult{font-family:var(--marker);font-size:34px;color:var(--accent);text-align:center}
 
 /* ввод кода */
 #codeInput{font:900 44px var(--font);letter-spacing:.25em;text-align:center;width:100%;max-width:300px;border:3px solid var(--line);border-radius:14px;padding:8px 0 8px .25em;background:#fff;color:var(--fg);font-variant-numeric:tabular-nums}
-.small{font-size:14px}
 
 /* HUD */
 #hud{position:absolute;inset:0;pointer-events:none;font-weight:700}
@@ -76,6 +111,12 @@ button{font:inherit;cursor:pointer}
 #timer.hurry{color:#ffd166}
 #lineInfo{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:18px;background:rgba(255,250,252,.85);border-radius:12px;padding:8px 12px;font-size:16px}
 #lineInfo b{color:var(--accent);font-size:20px}
+#locInfo{position:absolute;top:calc(64px + env(safe-area-inset-top,0px));left:18px;background:rgba(255,250,252,.85);border-radius:12px;padding:6px 12px;font-size:13px;font-weight:500}
+#liveChip{position:absolute;top:calc(100px + env(safe-area-inset-top,0px));left:18px}
+#suspicion{position:absolute;top:calc(84px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(320px,60vw);display:none;background:rgba(255,250,252,.9);border-radius:12px;padding:6px 10px;font-size:14px}
+#suspicion .bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:4px}
+#suspicion .bar i{display:block;height:100%;background:var(--bad);width:0}
+#suspicion.looking{outline:3px solid var(--bad)}
 #weaponBox{position:absolute;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));background:rgba(255,250,252,.9);border-radius:14px;padding:10px 14px;min-width:200px}
 #weaponName{font-size:16px}
 #reloadBar{height:8px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}
@@ -91,20 +132,22 @@ button{font:inherit;cursor:pointer}
 
 /* раскрытие */
 #reveal{background:rgba(58,35,49,.62)}
-.polaroid{background:#fff;border-radius:6px;padding:16px 16px 14px;box-shadow:0 20px 50px rgba(30,21,34,.35);max-width:760px;width:100%;box-sizing:border-box;color:var(--ink);position:relative}
+.polaroid{background:#fff;border-radius:6px;padding:16px 16px 14px;box-shadow:0 20px 50px rgba(30,21,34,.35);max-width:760px;width:100%;box-sizing:border-box;color:var(--ink);position:relative;display:flex;flex-direction:column;gap:10px}
 .polaroid .pair{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.polaroid .shot{flex:1 1 240px;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.polaroid .shot{flex:1 1 200px;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
 .polaroid .shot canvas{width:100%;aspect-ratio:1;border-radius:6px;background:#fbf3ef}
-.polaroid .shot .lbl{font-family:var(--marker);font-size:28px;font-weight:700}
+.polaroid .shot .lbl{font-family:var(--marker);font-size:26px;font-weight:700}
 .stamp{position:absolute;right:18px;top:-14px;transform:rotate(9deg);font-family:var(--marker);font-size:56px;font-weight:700;color:var(--accent);border:4px solid var(--accent);border-radius:12px;padding:0 12px;line-height:1.1;background:rgba(255,255,255,.9)}
-.checklist{display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;margin-top:12px;align-items:center;font-size:16px}
-.checklist .bar{width:110px;height:10px;background:#eee;border-radius:5px;overflow:hidden}
+.checklist{display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center;font-size:15px}
+.checklist .bar{width:100px;height:10px;background:#eee;border-radius:5px;overflow:hidden}
 .checklist .bar i{display:block;height:100%;background:var(--ok)}
 .checklist .no i{background:var(--bad)}
 .checklist .mark{font-weight:900}
 .checklist .mark.ok{color:var(--ok)}
 .checklist .mark.no{color:var(--bad)}
-.verdict{margin-top:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--marker);font-size:26px}
+.checklist .hd{grid-column:1/-1;font-weight:900;margin-top:4px}
+.verdict{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--marker);font-size:24px}
+.starsBig{font-size:40px;color:var(--gold);text-align:center;letter-spacing:.1em}
 #err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;background:var(--bg);font-size:18px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -118,6 +161,9 @@ button{font:inherit;cursor:pointer}
 <div id="hud" hidden>
   <div id="timer">60</div>
   <div id="lineInfo">Линия <b id="lineM">3 м</b> · множитель <b id="lineX">×1</b></div>
+  <div id="locInfo">Лофт</div>
+  <div id="liveChip"><span class="chip off">Модель по кодам</span></div>
+  <div id="suspicion"><span id="suspText">Она не смотрит</span><div class="bar"><i id="suspFill"></i></div></div>
   <button id="endBtn" class="btn secondary">Закончить раунд</button>
   <div id="banner"></div>
   <div id="weaponBox">
@@ -125,20 +171,21 @@ button{font:inherit;cursor:pointer}
     <div id="reloadBar"><div id="reloadFill"></div></div>
     <div id="wpnSlots"><span class="on">1 помада</span><span>2 базука</span><span>3 чёрная</span></div>
   </div>
-  <div id="hint">ЛКМ — выстрел · ПКМ (держать) — зум · 1 / 2 / 3 — ствол · F — сменить линию (3 / 8 / 15 м) · H — голова крутится вкл/выкл · стрелки — повернуть голову · Enter — закончить</div>
+  <div id="hint">ЛКМ — выстрел · ПКМ (держать) — зум · 1 / 2 / 3 — ствол · F — линия (3 / 8 / 15 м) · T — Модель сказала запретное слово (−5 с) · H — голова крутится сама вкл/выкл · стрелки — повернуть голову · Enter — закончить</div>
 </div>
 <div id="countdown" hidden></div>
 
 <div id="menu" class="screen">
   <h1>MAKEUP SNIPER<small>прототип, неделя 1</small></h1>
   <div class="card">
-    <p><b>Один видит референс макияжа и описывает его словами.</b> Другой красит лицо-болванку выстрелами: помада-снайперка и румяна-базука. Через 60 секунд — раскрытие и процент совпадения.</p>
+    <p><b>Один видит референс макияжа и описывает его словами.</b> Другой красит лицо-болванку выстрелами. Через 60 секунд — раскрытие и процент совпадения. Хорошие проценты дают звёзды, звёзды открывают новые места: детский праздник, свидание, свадьба.</p>
     <ol>
-      <li>Друг открывает эту же ссылку и нажимает <b>«Я Модель»</b>. Выбирает один референс из трёх и говорит тебе <b>код</b>.</li>
-      <li>Ты нажимаешь <b>«Я стрелок»</b>, вводишь код. Референс ты не видишь.</li>
-      <li>Друг описывает голосом (Discord), ты стреляешь 60 секунд. <b>Свой экран до раскрытия не показывай.</b></li>
-      <li>Раскрытие: полароид «референс / результат» и %. Меняйтесь ролями.</li>
+      <li>Ты нажимаешь <b>«Я стрелок»</b>, выбираешь место и говоришь другу, какое.</li>
+      <li>Друг открывает эту же ссылку, нажимает <b>«Я Модель»</b>, выбирает то же место и один референс из трёх. Называет тебе <b>код</b>.</li>
+      <li>Ты вводишь код. Друг описывает голосом, но <b>без запретных слов</b>. Ты стреляешь. Свой экран до раскрытия не показывай.</li>
+      <li>Раскрытие: полароид, %, звёзды. Меняйтесь ролями.</li>
     </ol>
+    <p class="muted small" style="margin:8px 0 0">Если страница открыта у друга по приглашению (не по публичной ссылке) и он вошёл в Claude, у Модели появится живой пульт: крутить головой, закрываться ладонью, увернуться и подсмотреть в зеркальце.</p>
   </div>
   <div class="row">
     <button id="btnShooter" class="btn big">Я стрелок</button>
@@ -147,53 +194,75 @@ button{font:inherit;cursor:pointer}
   <p class="muted small">Стрелку нужен компьютер с мышью. Карточка Модели открывается и на телефоне.</p>
 </div>
 
-<div id="model" class="screen" hidden>
-  <h2>Ты Модель. Выбери референс и назови стрелку код</h2>
-  <p class="muted small" style="margin:0;text-align:center">Стрелок картинку не видит. Опиши её словами. Лево и право здесь — <b>твои</b>, как если бы красили тебя.</p>
-  <div id="refGrid"></div>
-  <div id="refOne">
-    <canvas id="refOneImg" width="480" height="480"></canvas>
-    <div class="name" id="refOneName" style="font-weight:900;font-size:24px"></div>
-    <div class="muted small">Скажи стрелку код:</div>
-    <div class="code" id="refOneCode"></div>
-    <div class="zonelist" id="refOneZones"></div>
-    <div id="modelTimer">60</div>
-    <div class="row">
-      <button id="btnModelTimer" class="btn">Запустить 60 секунд</button>
-      <button id="btnModelBack" class="btn secondary">Другой референс</button>
-    </div>
-  </div>
-  <div class="row">
-    <button id="btnReroll" class="btn secondary">Другие три</button>
-    <button id="btnModelMenu" class="btn secondary">В меню</button>
-  </div>
+<div id="career" class="screen" hidden>
+  <h2>Куда едет бригада?</h2>
+  <p class="muted small" style="margin:0;text-align:center;max-width:520px">Раунд даёт до трёх звёзд (40% / 60% / 80%). Четыре звезды в месте открывают следующее. Скажи Модели, какое место выбрал.</p>
+  <div id="locList" style="display:flex;flex-direction:column;gap:10px;width:100%;align-items:center"></div>
+  <div class="row"><button id="btnCareerMenu" class="btn secondary">В меню</button><button id="btnResetProgress" class="btn secondary">Сбросить прогресс</button></div>
 </div>
 
 <div id="code" class="screen" hidden>
-  <h2>Введи код, который назвал друг</h2>
+  <h2 id="codeTitle">Введи код, который назвал друг</h2>
   <input id="codeInput" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off">
-  <div class="row">
-    <button id="btnStart" class="btn big">Начать раунд</button>
-  </div>
+  <div class="row"><button id="btnStart" class="btn big">Начать раунд</button></div>
   <div class="row">
     <button id="btnRandom" class="btn secondary">Случайный референс (играю один)</button>
-    <button id="btnCodeMenu" class="btn secondary">В меню</button>
+    <button id="btnCodeBack" class="btn secondary">Назад к местам</button>
   </div>
   <p class="muted small" style="max-width:520px;text-align:center">В одиночку референс покажется только на раскрытии. Так можно проверить стрельбу, но не игру: смысл в том, что описывает друг.</p>
+</div>
+
+<div id="model" class="screen" hidden>
+  <h2 id="modelTitle">Ты Модель. Где играете?</h2>
+  <div id="modelLoc" class="locpick"></div>
+  <p id="modelHint" class="muted small" style="margin:0;text-align:center;max-width:560px" hidden>Стрелок картинку не видит. Опиши её словами, но <b>не произноси запретные слова</b>. Лево и право здесь — <b>твои</b>, как если бы красили тебя.</p>
+  <div id="refGrid"></div>
+  <div id="refOne">
+    <div class="faces" id="refOneFaces"></div>
+    <div id="refOneName" style="font-weight:900;font-size:24px;text-align:center"></div>
+    <div class="muted small">Скажи стрелку код:</div>
+    <div class="code" id="refOneCode"></div>
+    <div class="taboo" id="refOneTaboo"></div>
+    <div class="zonelist" id="refOneZones"></div>
+    <div class="bet"><span class="muted small">Твоя ставка: сколько % получится? (попадёшь в ±10 — выиграла)</span><b id="betVal">50%</b><input type="range" id="betRange" min="0" max="100" value="50"></div>
+    <div id="live">
+      <div class="row" style="gap:6px"><span class="chip on">Живая связь со стрелком</span><span id="livePhase" class="chip">ждём раунд</span></div>
+      <div id="liveTimer">—</div>
+      <div id="mirrorWrap"><canvas id="mirror" width="128" height="128"></canvas><span class="muted small">Зеркальце: так ты выглядишь сейчас</span></div>
+      <div id="liveResult"></div>
+      <div id="pad">
+        <span></span><button data-d="up" aria-label="Наклонить вверх">▲</button><span></span>
+        <button data-d="left" aria-label="Повернуть влево">◀</button><button class="c" id="padCenter" aria-label="Прямо">●</button><button data-d="right" aria-label="Повернуть вправо">▶</button>
+        <span></span><button data-d="down" aria-label="Наклонить вниз">▼</button><span></span>
+      </div>
+      <div class="liveRow"><button id="btnHand" class="btn">Ладонь (3)</button><button id="btnDodge" class="btn secondary">Уворот</button></div>
+      <p class="muted small" style="margin:0;text-align:center">Держи стрелки, чтобы крутить головой. Ладонь закрывает лицо на 3 секунды. Уворот сбивает выстрел.</p>
+    </div>
+    <div id="offlineTimer" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div id="modelTimer">60</div>
+      <button id="btnModelTimer" class="btn">Запустить таймер</button>
+    </div>
+    <div class="row"><button id="btnModelBack" class="btn secondary">Другой референс</button></div>
+  </div>
+  <div class="row">
+    <button id="btnReroll" class="btn secondary" hidden>Другие три</button>
+    <button id="btnModelLocBack" class="btn secondary" hidden>Другое место</button>
+    <button id="btnModelMenu" class="btn secondary">В меню</button>
+  </div>
 </div>
 
 <div id="reveal" class="screen" hidden>
   <div class="polaroid">
     <div class="stamp" id="stampPct">0%</div>
-    <div class="pair">
-      <div class="shot"><canvas id="revRef" width="480" height="480"></canvas><div class="lbl">РЕФЕРЕНС</div></div>
-      <div class="shot"><canvas id="revRes" width="480" height="480"></canvas><div class="lbl">РЕЗУЛЬТАТ</div></div>
-    </div>
+    <div id="revPairs"></div>
     <div class="checklist" id="checklist"></div>
     <div class="verdict"><span id="verdictName"></span><span id="verdictPts"></span></div>
+    <div class="starsBig" id="starsBig"></div>
+    <div id="unlockNote" class="muted small" style="text-align:center"></div>
   </div>
   <div class="row">
-    <button id="btnAgain" class="btn big">Ещё раунд</button>
+    <button id="btnAgain" class="btn big">Ещё раунд здесь</button>
+    <button id="btnRevealCareer" class="btn secondary">К местам</button>
     <button id="btnRevealMenu" class="btn secondary">В меню</button>
   </div>
 </div>
@@ -206,7 +275,6 @@ button{font:inherit;cursor:pointer}
 'use strict';
 
 // ============ НАСТРОЙКИ (можно менять числа) ============
-const ROUND_SECONDS = 60;      // длина раунда
 const FACE_SIZE = 0.7;         // м: ширина лицевого холста (фронтальная проекция)
 const HEAD_R = 0.3;            // м: радиус головы
 const HEAD_STRETCH = 1.15;     // «яйцо»: вытянутость головы по вертикали
@@ -214,8 +282,11 @@ const TEX = 1024;              // размер текстуры лица
 const GRID = 64;               // логическая сетка для подсчёта
 const COVER_OK = 0.7;          // зона зачтена, если покрыта на 70%
 const PENALTY_MAX = 30;        // максимальный штраф за залёт, %
+const TABOO_PENALTY = 5;       // секунд за запретное слово
+const STAR_THRESHOLDS = [40,60,80]; // % для 1/2/3 звёзд
+const UNLOCK_STARS = 4;        // звёзд в месте, чтобы открыть следующее
 const LINES = [ {z:3, mult:1}, {z:8, mult:2}, {z:15, mult:3} ];
-const HEAD_SWAY_DEFAULT = true;// голова сама медленно крутится (имитация Модели)
+const HEAD_SWAY_DEFAULT = true;// голова сама медленно крутится, если Модель не на связи
 
 const COLORS = {
   red:   { id:1, hex:'#d7263d', name:'красный' },
@@ -225,7 +296,7 @@ const COLORS = {
 // Стволы. radius — радиус пятна в метрах, reload — секунды, spread — разброс в градусах.
 const WEAPONS = [
   { name:'Помада-снайперка', color:'red',   kind:'hitscan',    radius:0.02, reload:1.2, zoom:true,  spread:0.35, spreadZoom:0.08, sway:0.22 },
-  { name:'Румяна-базука',    color:'pink',  kind:'projectile', radius:0.05, reload:3.0, zoom:false, spread:0.8,  spreadZoom:0.8,  sway:0.5, speed:24 }, // speed: 24 м/с долетает на 15 м, если целиться ~2 м выше головы
+  { name:'Румяна-базука',    color:'pink',  kind:'projectile', radius:0.05, reload:3.0, zoom:false, spread:0.8,  spreadZoom:0.8,  sway:0.5, speed:24 }, // 24 м/с долетает на 15 м, если целиться ~2 м выше головы
   { name:'Помада, чёрный оттенок', color:'black', kind:'hitscan', radius:0.03, reload:1.5, zoom:true, spread:0.35, spreadZoom:0.08, sway:0.22 }
 ];
 // Зоны лица в координатах холста (0..1, y вверх). Лево/право — со стороны Модели.
@@ -235,48 +306,66 @@ const ZONES = {
   cheekL: { name:'Левая щека',   x:0.69, y:0.43, rx:0.08,  ry:0.07 },
   cheekR: { name:'Правая щека',  x:0.31, y:0.43, rx:0.08,  ry:0.07 },
   eyeL:   { name:'Левый глаз',   x:0.61, y:0.60, rx:0.07,  ry:0.06 },
-  eyeR:   { name:'Правый глаз',  x:0.39, y:0.60, rx:0.07,  ry:0.06 }
+  eyeR:   { name:'Правый глаз',  x:0.39, y:0.60, rx:0.07,  ry:0.06 },
+  brow:   { name:'Лоб',          x:0.50, y:0.74, rx:0.10,  ry:0.05 }
 };
-const REFS = [
-  { name:'Клоун',            zones:[ {z:'nose',c:'red'}, {z:'lips',c:'red'}, {z:'cheekL',c:'pink'}, {z:'cheekR',c:'pink'} ] },
-  { name:'Панда',            zones:[ {z:'eyeL',c:'black'}, {z:'eyeR',c:'black'}, {z:'nose',c:'black'} ] },
-  { name:'След поцелуя',     zones:[ {z:'lips',c:'red'}, {z:'cheekL',c:'red'} ] },
-  { name:'Пират',            zones:[ {z:'eyeL',c:'black'}, {z:'nose',c:'red'} ] },
-  { name:'Бабушкин румянец', zones:[ {z:'cheekL',c:'pink',big:true}, {z:'cheekR',c:'pink',big:true}, {z:'lips',c:'red'} ] }
+// Референсы: зоны с цветом и запретные слова для Модели.
+const REFS = {
+  clown:  { name:'Клоун',            taboo:['клоун','нос','красный','розовый'], zones:[ {z:'nose',c:'red'}, {z:'lips',c:'red'}, {z:'cheekL',c:'pink'}, {z:'cheekR',c:'pink'} ] },
+  panda:  { name:'Панда',            taboo:['панда','глаз','чёрный','медведь'], zones:[ {z:'eyeL',c:'black'}, {z:'eyeR',c:'black'}, {z:'nose',c:'black'} ] },
+  kiss:   { name:'След поцелуя',     taboo:['поцелуй','губы','щека','красный'], zones:[ {z:'lips',c:'red'}, {z:'cheekL',c:'red'} ] },
+  pirate: { name:'Пират',            taboo:['пират','повязка','глаз','нос'], zones:[ {z:'eyeL',c:'black'}, {z:'nose',c:'red'} ] },
+  granny: { name:'Бабушкин румянец', taboo:['бабушка','щёки','румяна','губы'], zones:[ {z:'cheekL',c:'pink',big:true}, {z:'cheekR',c:'pink',big:true}, {z:'lips',c:'red'} ] },
+  cat:    { name:'Кот',              taboo:['кот','кошка','усы','нос'], zones:[ {z:'nose',c:'black'}, {z:'lips',c:'black'}, {z:'cheekL',c:'pink'}, {z:'cheekR',c:'pink'} ] },
+  tiger:  { name:'Тигр',             taboo:['тигр','полоски','лоб','рыжий'], zones:[ {z:'brow',c:'black'}, {z:'nose',c:'pink'}, {z:'cheekL',c:'black'}, {z:'cheekR',c:'black'} ] },
+  hickey: { name:'Засос',            taboo:['засос','шея','щека','красный','пятно'], zones:[ {z:'cheekL',c:'red'} ] },
+  shy:    { name:'Смущение',         taboo:['смущение','щёки','розовый','краснеет'], zones:[ {z:'cheekL',c:'pink'}, {z:'cheekR',c:'pink'} ] },
+  exkiss: { name:'Поцелуй бывшей',   taboo:['бывшая','поцелуй','губы','щека'], zones:[ {z:'lips',c:'red'}, {z:'cheekR',c:'red'} ] },
+  bride:  { name:'Невеста',          taboo:['невеста','губы','глаза','щёки','тушь'], zones:[ {z:'lips',c:'red'}, {z:'cheekL',c:'pink'}, {z:'cheekR',c:'pink'}, {z:'eyeL',c:'black'}, {z:'eyeR',c:'black'} ] },
+  groom:  { name:'Жених',            taboo:['жених','вино','торт','нос','щека'], zones:[ {z:'nose',c:'red'}, {z:'cheekR',c:'pink'} ] },
+  bride2: { name:'Невеста после девичника', taboo:['синяк','глаз','губы','невеста'], zones:[ {z:'eyeL',c:'black'}, {z:'lips',c:'red'} ] },
+  groom2: { name:'Жених с пощёчиной', taboo:['пощёчина','щека','губы','жених'], zones:[ {z:'lips',c:'red'}, {z:'cheekL',c:'red'} ] }
+};
+// Места (прогрессия). pool — что можно выбрать; для свадьбы это пары [невеста, жених].
+const LOCATIONS = [
+  { id:'loft',    name:'Лофт',               desc:'Дом. Тренировка, без помех.',                                              seconds:60, pool:[['clown'],['panda'],['kiss'],['pirate'],['granny']] },
+  { id:'party',   name:'Детский праздник',   desc:'Дети бегают перед креслом и ловят выстрелы. Попал в ребёнка — минус 5 секунд.', seconds:60, gimmick:'kids', pool:[['clown'],['panda'],['cat'],['tiger']] },
+  { id:'date',    name:'Ресторан: свидание', desc:'Девушка напротив то и дело оборачивается. Пока смотрит — стрелять нельзя, иначе заметит.', seconds:60, gimmick:'witness', pool:[['hickey'],['shy'],['exkiss']] },
+  { id:'wedding', name:'Свадьба (босс)',     desc:'Невеста и жених сразу. Два гостя оборачиваются. 90 секунд на двоих.',       seconds:90, gimmick:'wedding', pool:[['bride','groom'],['bride2','groom2']] }
 ];
 // ========================================================
 
 const $ = id => document.getElementById(id);
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const deg = d => d*Math.PI/180;
+const nowMs = () => performance.now();
 
 // ---------- код референса (одна формула у Модели и у стрелка) ----------
-function codeToIdx(code){
+function codeToIdx(code, n){
   const d = String(code).padStart(4,'0').split('').map(Number);
-  return (d[0]*3 + d[1]*7 + d[2]*5 + d[3]*11 + d[0]*d[3] + d[1]*d[2]) % REFS.length;
+  return (d[0]*3 + d[1]*7 + d[2]*5 + d[3]*11 + d[0]*d[3] + d[1]*d[2]) % n;
 }
-function codeFor(idx){
-  for(let i=0;i<10000;i++){ const c = 1000 + Math.floor(Math.random()*9000); if(codeToIdx(c)===idx) return c; }
+function codeFor(idx, n){
+  for(let i=0;i<20000;i++){ const c = 1000 + Math.floor(Math.random()*9000); if(codeToIdx(c,n)===idx) return c; }
   return 1000;
 }
-function zoneDef(zr){
-  const z = ZONES[zr.z]; const k = zr.big ? 1.35 : 1;
-  return { name:z.name, x:z.x, y:z.y, rx:z.rx*k, ry:z.ry*k };
-}
+function zoneDef(zr){ const z = ZONES[zr.z]; const k = zr.big ? 1.35 : 1; return { name:z.name, key:zr.z, x:z.x, y:z.y, rx:z.rx*k, ry:z.ry*k }; }
+
+// ---------- прогресс (на компьютере стрелка) ----------
+let progress = { stars:{} };
+try{ const s = localStorage.getItem('ms_progress'); if(s) progress = JSON.parse(s); if(!progress.stars) progress.stars = {}; }catch(e){}
+function saveProgress(){ try{ localStorage.setItem('ms_progress', JSON.stringify(progress)); }catch(e){} }
+function starsOf(loc){ return progress.stars[loc.id]||0; }
+function isUnlocked(i){ return i===0 || starsOf(LOCATIONS[i-1]) >= UNLOCK_STARS; }
+function starsFor(match){ let s=0; for(const th of STAR_THRESHOLDS) if(match>=th) s++; return s; }
 
 // ---------- рисование лица (2D) ----------
 function ellipse(ctx,x,y,rx,ry){ ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2); ctx.closePath(); }
 function drawFeatures(ctx, S){
   const P = (u,v) => [u*S, (1-v)*S];
-  ctx.save();
-  ctx.lineCap = 'round';
-  // брови
+  ctx.save(); ctx.lineCap = 'round';
   ctx.strokeStyle = '#6a4a5c'; ctx.lineWidth = 0.012*S;
-  for(const ex of [0.39,0.61]){
-    const [x,y] = P(ex,0.685);
-    ctx.beginPath(); ctx.arc(x, y+0.05*S, 0.075*S, Math.PI*1.2, Math.PI*1.8); ctx.stroke();
-  }
-  // глаза
+  for(const ex of [0.39,0.61]){ const [x,y] = P(ex,0.685); ctx.beginPath(); ctx.arc(x, y+0.05*S, 0.075*S, Math.PI*1.2, Math.PI*1.8); ctx.stroke(); }
   for(const ex of [0.39,0.61]){
     const [x,y] = P(ex,0.60);
     ctx.fillStyle = '#fff'; ellipse(ctx,x,y,0.046*S,0.03*S); ctx.fill();
@@ -284,102 +373,52 @@ function drawFeatures(ctx, S){
     ctx.fillStyle = '#2a1f2a'; ellipse(ctx,x,y,0.016*S,0.016*S); ctx.fill();
     ctx.fillStyle = '#fff'; ellipse(ctx,x-0.006*S,y-0.006*S,0.005*S,0.005*S); ctx.fill();
   }
-  // нос
-  { const [x,y] = P(0.5,0.47);
-    ctx.strokeStyle = '#a97f92'; ctx.lineWidth = 0.008*S;
+  { const [x,y] = P(0.5,0.47); ctx.strokeStyle = '#a97f92'; ctx.lineWidth = 0.008*S;
     ctx.beginPath(); ctx.moveTo(x-0.03*S,y-0.03*S); ctx.quadraticCurveTo(x-0.035*S,y+0.03*S,x,y+0.03*S); ctx.quadraticCurveTo(x+0.035*S,y+0.03*S,x+0.03*S,y-0.03*S); ctx.stroke(); }
-  // рот
-  { const [x,y] = P(0.5,0.33);
-    ctx.strokeStyle = '#b06a83'; ctx.lineWidth = 0.009*S;
+  { const [x,y] = P(0.5,0.33); ctx.strokeStyle = '#b06a83'; ctx.lineWidth = 0.009*S;
     ctx.beginPath(); ctx.moveTo(x-0.075*S,y-0.01*S); ctx.quadraticCurveTo(x,y+0.035*S,x+0.075*S,y-0.01*S); ctx.stroke(); }
   ctx.restore();
 }
-function drawHeadShape(ctx,S){
-  ctx.fillStyle = '#fbf3ef'; ellipse(ctx,S/2,S/2,0.43*S,0.43*S); ctx.fill();
-  ctx.strokeStyle = '#dcbfcb'; ctx.lineWidth = 0.008*S; ctx.stroke();
-}
+function drawHeadShape(ctx,S){ ctx.fillStyle = '#fbf3ef'; ellipse(ctx,S/2,S/2,0.43*S,0.43*S); ctx.fill(); ctx.strokeStyle = '#dcbfcb'; ctx.lineWidth = 0.008*S; ctx.stroke(); }
 // картинка референса (или результата) 2D, вытянута как «яйцо»
 function drawFaceImage(canvas, ref, paintSrc){
   const S = canvas.width; const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,S,S);
-  ctx.save();
+  ctx.clearRect(0,0,S,S); ctx.save();
   ctx.translate(S/2,S/2); ctx.scale(0.96, 0.96*HEAD_STRETCH); ctx.translate(-S/2,-S/2);
-  drawHeadShape(ctx,S);
-  drawFeatures(ctx,S);
-  if(ref){
-    for(const zr of ref.zones){
-      const z = zoneDef(zr); const [x,y] = [z.x*S,(1-z.y)*S];
-      ctx.fillStyle = COLORS[zr.c].hex; ctx.globalAlpha = 0.9;
-      ellipse(ctx,x,y,z.rx*S,z.ry*S); ctx.fill(); ctx.globalAlpha = 1;
-    }
-  }
+  drawHeadShape(ctx,S); drawFeatures(ctx,S);
+  if(ref){ for(const zr of ref.zones){ const z = zoneDef(zr); ctx.fillStyle = COLORS[zr.c].hex; ctx.globalAlpha = 0.9; ellipse(ctx,z.x*S,(1-z.y)*S,z.rx*S,z.ry*S); ctx.fill(); ctx.globalAlpha = 1; } }
   if(paintSrc){ ctx.drawImage(paintSrc,0,0,S,S); }
   ctx.restore();
 }
+// картинка из упакованной сетки (зеркальце у Модели)
+function drawGridImage(canvas, packed){
+  const S = canvas.width, ctx = canvas.getContext('2d'); ctx.clearRect(0,0,S,S); ctx.save();
+  ctx.translate(S/2,S/2); ctx.scale(0.96, 0.96*HEAD_STRETCH); ctx.translate(-S/2,-S/2);
+  drawHeadShape(ctx,S); drawFeatures(ctx,S);
+  const cells = unpackGrid(packed); const cs = S/GRID;
+  for(let i=0;i<GRID*GRID;i++){ const v = cells[i]; if(!v) continue; const col = Object.values(COLORS).find(c=>c.id===v); if(!col) continue;
+    ctx.fillStyle = col.hex; const x = (i%GRID)*cs, y = (GRID-1-Math.floor(i/GRID))*cs; ctx.fillRect(x,y,cs+0.5,cs+0.5); }
+  ctx.restore();
+}
+function packGrid(grid){ const bytes = new Uint8Array(GRID*GRID/4); for(let i=0;i<GRID*GRID;i++){ bytes[i>>2] |= (grid[i]&3) << ((i&3)*2); } let s=''; for(const b of bytes) s += String.fromCharCode(b); return btoa(s); }
+function unpackGrid(str){ const out = new Uint8Array(GRID*GRID); try{ const s = atob(str); for(let i=0;i<GRID*GRID;i++){ out[i] = (s.charCodeAt(i>>2) >> ((i&3)*2)) & 3; } }catch(e){} return out; }
 
-// ---------- холст покраски + логическая сетка ----------
-const baseCanvas = document.createElement('canvas'); baseCanvas.width = baseCanvas.height = TEX;
-drawFeatures(baseCanvas.getContext('2d'), TEX);
-const paintCanvas = document.createElement('canvas'); paintCanvas.width = paintCanvas.height = TEX;
-const pctx = paintCanvas.getContext('2d');
-const grid = new Uint8Array(GRID*GRID);      // класс цвета в ячейке
-const gmult = new Uint8Array(GRID*GRID);     // множитель линии, с которой покрашено
+// ---------- сетка: общие таблицы ----------
 function cellCenter(i){ return [ ((i%GRID)+0.5)/GRID, (Math.floor(i/GRID)+0.5)/GRID ]; }
 const faceCells = []; for(let i=0;i<GRID*GRID;i++){ const [u,v]=cellCenter(i); if((u-0.5)**2+(v-0.5)**2 <= (HEAD_R/FACE_SIZE)**2) faceCells.push(i); }
 function cellsOfZone(z){ const out=[]; for(let i=0;i<GRID*GRID;i++){ const [u,v]=cellCenter(i); if(((u-z.x)/z.rx)**2+((v-z.y)/z.ry)**2 <= 1) out.push(i); } return out; }
 function inZone(u,v,z){ return ((u-z.x)/z.rx)**2+((v-z.y)/z.ry)**2 <= 1; }
-
-function clearPaint(){ pctx.clearRect(0,0,TEX,TEX); grid.fill(0); gmult.fill(0); if(paintTex) paintTex.needsUpdate = true; }
-
-function stamp(u, v, radiusM, colorKey, mult, soft){
-  const rp = radiusM/FACE_SIZE*TEX, x = u*TEX, y = (1-v)*TEX, col = COLORS[colorKey];
-  pctx.save();
-  if(soft){
-    const g = pctx.createRadialGradient(x,y,0,x,y,rp);
-    g.addColorStop(0, col.hex); g.addColorStop(0.75, col.hex); g.addColorStop(1, col.hex+'00');
-    pctx.fillStyle = g; pctx.beginPath(); pctx.arc(x,y,rp,0,Math.PI*2); pctx.fill();
-    pctx.fillStyle = col.hex; pctx.globalAlpha = 0.75;
-    for(let k=0;k<7;k++){ const a=Math.random()*Math.PI*2, d=rp*(0.9+Math.random()*0.8), r=rp*(0.08+Math.random()*0.12);
-      pctx.beginPath(); pctx.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,r,0,Math.PI*2); pctx.fill(); }
-  } else {
-    pctx.fillStyle = col.hex; pctx.beginPath(); pctx.arc(x,y,rp,0,Math.PI*2); pctx.fill();
-    pctx.fillStyle = 'rgba(255,255,255,.35)'; pctx.beginPath(); pctx.ellipse(x-rp*0.3,y-rp*0.3,rp*0.3,rp*0.18,-0.6,0,Math.PI*2); pctx.fill();
-  }
-  pctx.restore();
-  paintTex.needsUpdate = true;
-  const rg = radiusM/FACE_SIZE*GRID*(soft?0.85:1), cx = u*GRID-0.5, cy = v*GRID-0.5;
-  for(let j=Math.max(0,Math.floor(cy-rg)); j<=Math.min(GRID-1,Math.ceil(cy+rg)); j++)
-    for(let i=Math.max(0,Math.floor(cx-rg)); i<=Math.min(GRID-1,Math.ceil(cx+rg)); i++)
-      if((i-cx)**2+(j-cy)**2 <= rg*rg){ grid[j*GRID+i] = col.id; gmult[j*GRID+i] = mult; }
-}
-
-function scoreRef(ref, eyeHits){
-  const zoneSet = new Set();
-  const zones = ref.zones.map(zr => {
-    const z = zoneDef(zr); const cells = cellsOfZone(z); let hit=0, ms=0;
-    for(const c of cells){ zoneSet.add(c); if(grid[c]===COLORS[zr.c].id){ hit++; ms+=gmult[c]; } }
-    const cov = cells.length ? hit/cells.length : 0;
-    return { name:z.name, color:zr.c, cov, ok:cov>=COVER_OK, avgMult: hit? ms/hit : 0 };
-  });
-  let over = 0; for(const c of faceCells){ if(grid[c]>0 && !zoneSet.has(c)) over++; }
-  const penalty = Math.min(PENALTY_MAX, 300*over/faceCells.length);
-  const avg = zones.reduce((s,z)=>s+z.cov,0)/zones.length;
-  const match = clamp(Math.round(avg*100 - penalty), 0, 100);
-  let pts = 0; for(const z of zones) if(z.ok) pts += Math.round(20*z.avgMult);
-  pts = Math.max(0, pts - Math.round(over/5) - eyeHits*10);
-  return { zones, over, penalty, match, pts };
-}
 
 // ---------- звук ----------
 let actx = null;
 function sound(type){
   try{
     if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
-    const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
-    o.connect(g); g.connect(actx.destination);
+    const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain(); o.connect(g); g.connect(actx.destination);
     if(type==='kiss'){ o.type='sine'; o.frequency.setValueAtTime(1100,t); o.frequency.exponentialRampToValueAtTime(220,t+0.12); g.gain.setValueAtTime(0.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16); o.start(t); o.stop(t+0.17); }
     else if(type==='pop'){ o.type='triangle'; o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(60,t+0.25); g.gain.setValueAtTime(0.35,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.3); o.start(t); o.stop(t+0.32); }
     else if(type==='miss'){ o.type='square'; o.frequency.setValueAtTime(180,t); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.08); o.start(t); o.stop(t+0.09); }
+    else if(type==='alarm'){ o.type='sawtooth'; o.frequency.setValueAtTime(440,t); o.frequency.setValueAtTime(330,t+0.15); o.frequency.setValueAtTime(440,t+0.3); g.gain.setValueAtTime(0.2,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.5); o.start(t); o.stop(t+0.5); }
     else if(type==='tada'){ [523,659,784,1047].forEach((f,i)=>{ const o2=actx.createOscillator(), g2=actx.createGain(); o2.connect(g2); g2.connect(actx.destination); o2.type='triangle'; o2.frequency.value=f; g2.gain.setValueAtTime(0.0001,t+i*0.12); g2.gain.exponentialRampToValueAtTime(0.25,t+i*0.12+0.02); g2.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.5); o2.start(t+i*0.12); o2.stop(t+i*0.12+0.55); }); o.start(t); o.stop(t+0.01); }
     else if(type==='tick'){ o.type='sine'; o.frequency.value=880; g.gain.setValueAtTime(0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.1); o.start(t); o.stop(t+0.11); }
   }catch(e){}
@@ -394,54 +433,117 @@ const scene = new THREE.Scene(); scene.background = new THREE.Color(0xf3e4ea);
 const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 80);
 scene.add(new THREE.HemisphereLight(0xfff6fa, 0xc8b0bd, 1.1));
 const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(5,9,7); scene.add(sun);
-const colliders = [];
+const colliders = [];      // постоянные препятствия
+const locObjects = [];     // объекты текущего места (удаляются при смене)
 const mat = (c) => new THREE.MeshLambertMaterial({ color:c });
-function box(w,h,d,c,x,y,z, collide){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat(c)); m.position.set(x,y,z); scene.add(m); if(collide) colliders.push(m); return m; }
+function box(w,h,d,c,x,y,z, collide, list){ const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat(c)); m.position.set(x,y,z); scene.add(m); if(collide) colliders.push(m); if(list) list.push(m); return m; }
 // лофт
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(10,28), mat(0xe9d6c6)); floor.rotation.x = -Math.PI/2; floor.position.z = 9; scene.add(floor); colliders.push(floor);
 for(let z=-4; z<22; z+=1.0){ const plank = new THREE.Mesh(new THREE.PlaneGeometry(10,0.02), new THREE.MeshBasicMaterial({color:0xd8c1b0})); plank.rotation.x=-Math.PI/2; plank.position.set(0,0.002,z); scene.add(plank); }
-box(10,3.8,0.2,0xd7efe4, 0,1.9,-4, true);    // задняя стена за креслом
-box(0.2,3.8,28,0xf7dcc8, -5,1.9,9, true);    // левая
-box(0.2,3.8,28,0xf7dcc8, 5,1.9,9, true);     // правая
-box(10,3.8,0.2,0xd7efe4, 0,1.9,22, true);    // дальняя
-box(10,0.2,28,0xfff7f2, 0,3.9,9, false);     // потолок
-// окно на левой стене
+const wallBack = box(10,3.8,0.2,0xd7efe4, 0,1.9,-4, true);
+box(0.2,3.8,28,0xf7dcc8, -5,1.9,9, true); box(0.2,3.8,28,0xf7dcc8, 5,1.9,9, true); box(10,3.8,0.2,0xd7efe4, 0,1.9,22, true); box(10,0.2,28,0xfff7f2, 0,3.9,9, false);
 box(0.05,1.6,3,0xeaf6ff, -4.88,2.0,6, false); box(0.05,1.6,3,0xeaf6ff, -4.88,2.0,12, false);
-// зеркало и кафель у задней стены
 box(0.06,2.0,1.4,0xffffff, 4.87,1.5,1.5, false); box(0.04,1.8,1.2,0xdfe9f3, 4.83,1.5,1.5, false);
-// диван, лампа, растение
 box(1.8,0.5,0.8,0xb7d9f4, 3.6,0.25,9, true); box(1.8,0.6,0.25,0xb7d9f4, 3.6,0.8,9.3, true);
 { const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.15,0.4,12), mat(0xd9a57b)); pot.position.set(-3.8,0.2,2); scene.add(pot);
   const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.45,12,10), mat(0x8fcf9a)); leaf.position.set(-3.8,0.8,2); scene.add(leaf); colliders.push(leaf); }
 { const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,1.7,8), mat(0x4a3040)); pole.position.set(3.9,0.85,-2.5); scene.add(pole);
   const shade = new THREE.Mesh(new THREE.ConeGeometry(0.3,0.35,16,1,true), new THREE.MeshLambertMaterial({color:0xffd97a, side:THREE.DoubleSide})); shade.position.set(3.9,1.8,-2.5); scene.add(shade); }
-// линии малярным скотчем
-function label(text, x, y, z){ const c = document.createElement('canvas'); c.width=256; c.height=96; const g=c.getContext('2d'); g.fillStyle='#3a2331'; g.font='900 56px Rubik, sans-serif'; g.textAlign='center'; g.fillText(text,128,66);
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true })); s.scale.set(1.2,0.45,1); s.position.set(x,y,z); scene.add(s); }
+function label(text, x, y, z, list){ const c = document.createElement('canvas'); c.width=256; c.height=96; const g=c.getContext('2d'); g.fillStyle='#3a2331'; g.font='900 56px Rubik, sans-serif'; g.textAlign='center'; g.fillText(text,128,66);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true })); s.scale.set(1.2,0.45,1); s.position.set(x,y,z); scene.add(s); if(list) list.push(s); return s; }
 LINES.forEach(L => { box(8,0.012,0.09,0xf2c94c, 0,0.006,L.z, false); label(L.z+' м  ×'+L.mult, -2.2, 0.35, L.z-0.2); });
-// кресло и тело
-box(0.62,0.1,0.62,0xf4a6bf, 0,0.5,0, true); box(0.62,0.7,0.1,0xf4a6bf, 0,0.9,-0.3, true);
-{ const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.45,10), mat(0x8a8a95)); pole.position.set(0,0.25,0); scene.add(pole);
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.04,20), mat(0x8a8a95)); base.position.set(0,0.02,0); scene.add(base); }
-const body = new THREE.Mesh(new THREE.SphereGeometry(0.34,24,20), mat(0x9fd8f5)); body.scale.set(1,1.05,0.85); body.position.set(0,0.92,0.05); scene.add(body); colliders.push(body);
-// голова с лицевым холстом (фронтальная проекция в локальных координатах)
+
+// ---------- лицо: общая база и шейдер ----------
+const baseCanvas = document.createElement('canvas'); baseCanvas.width = baseCanvas.height = TEX; drawFeatures(baseCanvas.getContext('2d'), TEX);
 const baseTex = new THREE.CanvasTexture(baseCanvas);
-const paintTex = new THREE.CanvasTexture(paintCanvas);
-const headMat = new THREE.ShaderMaterial({
-  uniforms: { uBase:{value:baseTex}, uPaint:{value:paintTex}, uFaceSize:{value:FACE_SIZE}, uSkin:{value:new THREE.Color(0xfbf3ef)} },
-  vertexShader: `varying vec3 vPos; varying vec3 vN; void main(){ vPos = position; vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-  fragmentShader: `uniform sampler2D uBase; uniform sampler2D uPaint; uniform float uFaceSize; uniform vec3 uSkin; varying vec3 vPos; varying vec3 vN;
-    void main(){ vec3 col = uSkin;
-      if(vPos.z > 0.0){ vec2 uv = vPos.xy/uFaceSize + 0.5;
-        if(uv.x>0.0 && uv.x<1.0 && uv.y>0.0 && uv.y<1.0){ vec4 b = texture2D(uBase,uv); col = mix(col,b.rgb,b.a); vec4 p = texture2D(uPaint,uv); col = mix(col,p.rgb,p.a); } }
-      float d = max(dot(normalize(vN), normalize(vec3(0.35,0.7,0.6))), 0.0);
-      gl_FragColor = vec4(col*(0.66+0.34*d), 1.0); }`
-});
-const head = new THREE.Mesh(new THREE.SphereGeometry(HEAD_R, 64, 48), headMat);
-head.scale.set(1, HEAD_STRETCH, 1); head.position.set(0, 1.38, 0); scene.add(head);
-// уши, чтобы затылок читался
-for(const s of [-1,1]){ const ear = new THREE.Mesh(new THREE.SphereGeometry(0.06,12,10), mat(0xf6dcd2)); ear.position.set(s*0.3,0.02,0); ear.scale.set(0.6,1,1); head.add(ear); }
-// оружие в кадре (модель у камеры)
+const blankCanvas = document.createElement('canvas'); blankCanvas.width = blankCanvas.height = 4; const blankTex = new THREE.CanvasTexture(blankCanvas);
+function faceMaterial(paintTex, skin){
+  return new THREE.ShaderMaterial({
+    uniforms: { uBase:{value:baseTex}, uPaint:{value:paintTex}, uFaceSize:{value:FACE_SIZE}, uSkin:{value:new THREE.Color(skin||0xfbf3ef)} },
+    vertexShader: `varying vec3 vPos; varying vec3 vN; void main(){ vPos = position; vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `uniform sampler2D uBase; uniform sampler2D uPaint; uniform float uFaceSize; uniform vec3 uSkin; varying vec3 vPos; varying vec3 vN;
+      void main(){ vec3 col = uSkin;
+        if(vPos.z > 0.0){ vec2 uv = vPos.xy/uFaceSize + 0.5;
+          if(uv.x>0.0 && uv.x<1.0 && uv.y>0.0 && uv.y<1.0){ vec4 b = texture2D(uBase,uv); col = mix(col,b.rgb,b.a); vec4 p = texture2D(uPaint,uv); col = mix(col,p.rgb,p.a); } }
+        float d = max(dot(normalize(vN), normalize(vec3(0.35,0.7,0.6))), 0.0);
+        gl_FragColor = vec4(col*(0.66+0.34*d), 1.0); }`
+  });
+}
+function makeHeadMesh(paintTex, skin){
+  const m = new THREE.Mesh(new THREE.SphereGeometry(HEAD_R, 64, 48), faceMaterial(paintTex, skin));
+  m.scale.set(1, HEAD_STRETCH, 1);
+  for(const s of [-1,1]){ const ear = new THREE.Mesh(new THREE.SphereGeometry(0.06,12,10), mat(0xf6dcd2)); ear.position.set(s*0.3,0.02,0); ear.scale.set(0.6,1,1); m.add(ear); }
+  return m;
+}
+
+// ---------- Голова с холстом (Модель) ----------
+class Head {
+  constructor(x, label){
+    this.label = label; this.baseX = x;
+    this.paint = document.createElement('canvas'); this.paint.width = this.paint.height = TEX; this.pctx = this.paint.getContext('2d');
+    this.tex = new THREE.CanvasTexture(this.paint);
+    this.grid = new Uint8Array(GRID*GRID); this.gmult = new Uint8Array(GRID*GRID);
+    this.mesh = makeHeadMesh(this.tex); this.mesh.position.set(x, 1.38, 0); scene.add(this.mesh);
+    this.hand = new THREE.Mesh(new THREE.CircleGeometry(0.17, 20), new THREE.MeshLambertMaterial({ color:0xf6dcd2, side:THREE.DoubleSide })); this.hand.position.set(0,-0.02,0.36); this.hand.visible = false; this.mesh.add(this.hand);
+    this.group = new THREE.Group(); scene.add(this.group);
+    this.body = new THREE.Mesh(new THREE.SphereGeometry(0.34,24,20), mat(0x9fd8f5)); this.body.scale.set(1,1.05,0.85); this.body.position.set(x,0.92,0.05); scene.add(this.body); colliders.push(this.body);
+    this.chair = [ box(0.62,0.1,0.62,0xf4a6bf, x,0.5,0, true), box(0.62,0.7,0.1,0xf4a6bf, x,0.9,-0.3, true) ];
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.45,10), mat(0x8a8a95)); pole.position.set(x,0.25,0); scene.add(pole);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.04,20), mat(0x8a8a95)); base.position.set(x,0.02,0); scene.add(base);
+    this.extras = [pole, base];
+    this.yaw = 0; this.pitch = 0; this.phase = Math.random()*10; this.ref = null; this.dodgeUntil = 0; this.handUntil = 0; this.eyeHits = 0;
+  }
+  setVisible(v){ this.mesh.visible = v; this.body.visible = v; this.chair.forEach(c=>c.visible=v); this.extras.forEach(c=>c.visible=v); }
+  clear(){ this.pctx.clearRect(0,0,TEX,TEX); this.grid.fill(0); this.gmult.fill(0); this.tex.needsUpdate = true; this.eyeHits = 0; this.hand.visible = false; this.dodgeUntil = 0; }
+  stamp(u, v, radiusM, colorKey, mult, soft){
+    const p = this.pctx, rp = radiusM/FACE_SIZE*TEX, x = u*TEX, y = (1-v)*TEX, col = COLORS[colorKey];
+    p.save();
+    if(soft){ const g = p.createRadialGradient(x,y,0,x,y,rp); g.addColorStop(0, col.hex); g.addColorStop(0.75, col.hex); g.addColorStop(1, col.hex+'00');
+      p.fillStyle = g; p.beginPath(); p.arc(x,y,rp,0,Math.PI*2); p.fill(); p.fillStyle = col.hex; p.globalAlpha = 0.75;
+      for(let k=0;k<7;k++){ const a=Math.random()*Math.PI*2, d=rp*(0.9+Math.random()*0.8), r=rp*(0.08+Math.random()*0.12); p.beginPath(); p.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,r,0,Math.PI*2); p.fill(); } }
+    else { p.fillStyle = col.hex; p.beginPath(); p.arc(x,y,rp,0,Math.PI*2); p.fill(); p.fillStyle = 'rgba(255,255,255,.35)'; p.beginPath(); p.ellipse(x-rp*0.3,y-rp*0.3,rp*0.3,rp*0.18,-0.6,0,Math.PI*2); p.fill(); }
+    p.restore(); this.tex.needsUpdate = true;
+    const rg = radiusM/FACE_SIZE*GRID*(soft?0.85:1), cx = u*GRID-0.5, cy = v*GRID-0.5;
+    for(let j=Math.max(0,Math.floor(cy-rg)); j<=Math.min(GRID-1,Math.ceil(cy+rg)); j++)
+      for(let i=Math.max(0,Math.floor(cx-rg)); i<=Math.min(GRID-1,Math.ceil(cx+rg)); i++)
+        if((i-cx)**2+(j-cy)**2 <= rg*rg){ this.grid[j*GRID+i] = col.id; this.gmult[j*GRID+i] = mult; }
+  }
+  score(){
+    const ref = this.ref, zoneSet = new Set();
+    const zones = ref.zones.map(zr => { const z = zoneDef(zr); const cells = cellsOfZone(z); let hit=0, ms=0;
+      for(const c of cells){ zoneSet.add(c); if(this.grid[c]===COLORS[zr.c].id){ hit++; ms+=this.gmult[c]; } }
+      const cov = cells.length ? hit/cells.length : 0; return { name:z.name, color:zr.c, cov, ok:cov>=COVER_OK, avgMult: hit? ms/hit : 0 }; });
+    let over = 0; for(const c of faceCells){ if(this.grid[c]>0 && !zoneSet.has(c)) over++; }
+    const penalty = Math.min(PENALTY_MAX, 300*over/faceCells.length);
+    const avg = zones.reduce((s,z)=>s+z.cov,0)/zones.length;
+    const match = clamp(Math.round(avg*100 - penalty), 0, 100);
+    let pts = 0; for(const z of zones) if(z.ok) pts += Math.round(20*z.avgMult);
+    pts = Math.max(0, pts - Math.round(over/5) - this.eyeHits*10);
+    return { zones, over, penalty, match, pts, eyeHits:this.eyeHits };
+  }
+}
+const heads = [ new Head(0, 'Модель'), new Head(0.9, 'Жених') ];
+heads[1].setVisible(false);
+// свидетели (девушка на свидании, гости на свадьбе)
+class Witness {
+  constructor(x, z, faceTo){ this.mesh = makeHeadMesh(blankTex, 0xfbf0e6); this.mesh.position.set(x,1.38,z); this.mesh.scale.set(0.9,1.03,0.9); scene.add(this.mesh);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.31,24,16,0,Math.PI*2,0,Math.PI*0.55), mat(0x5a3a2e)); hair.position.y = 0.06; this.mesh.add(hair);
+    this.body = new THREE.Mesh(new THREE.SphereGeometry(0.3,20,16), mat(0xffc1d6)); this.body.scale.set(1,1.05,0.8); this.body.position.set(x,0.95,z); scene.add(this.body);
+    this.awayYaw = faceTo; this.lookYaw = Math.atan2(-x, -z); this.looking = false; this.next = 0; this.until = 0; this.visible(false); }
+  visible(v){ this.mesh.visible = v; this.body.visible = v; this.on = v; }
+  update(now, dt){ if(!this.on) return; if(this.looking){ if(now>this.until){ this.looking=false; this.next = now + (5000+Math.random()*7000); } }
+    else if(now>this.next){ this.looking = true; this.until = now + (1800+Math.random()*1800); }
+    const target = this.looking ? this.lookYaw : this.awayYaw; this.mesh.rotation.y += (target-this.mesh.rotation.y)*Math.min(1,dt*6); }
+}
+const witnesses = [ new Witness(1.5, 0.9, deg(150)), new Witness(-1.7, 1.1, deg(-150)) ];
+// дети на празднике
+const kids = [];
+for(let i=0;i<3;i++){ const g = new THREE.Group(); const col = [0xffd166,0x8fd3f4,0xb8e994][i];
+  const bd = new THREE.Mesh(new THREE.SphereGeometry(0.22,16,12), mat(col)); bd.position.y = 0.45; bd.scale.set(1,1.3,1); g.add(bd);
+  const hd = new THREE.Mesh(new THREE.SphereGeometry(0.16,16,12), mat(0xfbf0e6)); hd.position.y = 0.85; g.add(hd);
+  const bal = new THREE.Mesh(new THREE.SphereGeometry(0.14,12,10), mat([0xe63c6f,0x7fb3ff,0xffd166][i])); bal.position.set(0.15,1.35,0); g.add(bal);
+  g.position.set(-3+i*2, 0, 1.1+i*0.7); g.visible = false; scene.add(g); kids.push({ g, parts:[bd,hd,bal], dir: i%2?1:-1, speed: 1.2+i*0.5 }); }
+// оружие в кадре
 const gunGroup = new THREE.Group(); camera.add(gunGroup); scene.add(camera);
 const gunLip = new THREE.Group();
 { const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.42,16), mat(0xf1c9a5)); tube.rotation.x = Math.PI/2; gunLip.add(tube);
@@ -455,15 +557,17 @@ const tipColor = gunLip.children[1].material;
 
 // ---------- состояние ----------
 let state = 'menu';
-let t = 0, last = performance.now();
-let lineIdx = 0, weaponIdx = 0, reloadLeft = 0, zoom = false, fovCur = 60;
-let timeLeft = ROUND_SECONDS, countdownEnd = 0, roundEnd = 0, revealT = 0, revealStart = 0, revealShown = false;
-let currentRef = null, eyeHits = 0, shots = 0, headHits = 0, lastHit = null;
-let headSway = HEAD_SWAY_DEFAULT, manualYaw = 0, manualPitch = 0, headYaw = 0, headPitch = 0;
+let t = 0, last = nowMs();
+let locIdx = 0, lineIdx = 0, weaponIdx = 0, reloadLeft = 0, zoom = false, fovCur = 60;
+let timeLeft = 60, countdownEnd = 0, roundEnd = 0, roundSeconds = 60, revealT = 0, revealStart = 0, revealShown = false, mirrorSent = false;
+let shots = 0, headHits = 0, lastHit = null, taboos = 0, kidHits = 0, noticed = false, suspicion = 0, currentCode = null;
+let headSway = HEAD_SWAY_DEFAULT, manualYaw = 0, manualPitch = 0;
 let mouseNdc = new THREE.Vector2(0,0), aimNdc = new THREE.Vector2(0,0);
 const projectiles = [], splats = [], tracers = [];
 const raycaster = new THREE.Raycaster();
 const camTarget = new THREE.Vector3(), camPos = new THREE.Vector3(), lookAt = new THREE.Vector3(0,1.38,0), lookTarget = new THREE.Vector3(0,1.38,0);
+const LOC = () => LOCATIONS[locIdx];
+const activeHeads = () => LOC().gimmick==='wedding' ? heads : [heads[0]];
 
 function lineCamPos(i){ return new THREE.Vector3(0, 1.58, LINES[i].z); }
 function setLine(i){ lineIdx = i; $('lineM').textContent = LINES[i].z+' м'; $('lineX').textContent = '×'+LINES[i].mult; banner('Линия '+LINES[i].z+' м · ×'+LINES[i].mult, 900); }
@@ -472,71 +576,113 @@ function setWeapon(i){ if(i===weaponIdx) return; weaponIdx = i; reloadLeft = Mat
   gunLip.visible = WEAPONS[i].kind==='hitscan'; gunBaz.visible = !gunLip.visible; tipColor.color.set(COLORS[WEAPONS[i].color].hex); }
 let bannerTimer = 0;
 function banner(text, ms){ const b=$('banner'); b.textContent=text; b.classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(()=>b.classList.remove('show'), ms||1200); }
-
-function show(id){ for(const s of ['menu','model','code','reveal']) $(s).hidden = (s!==id); }
-
+function show(id){ for(const s of ['menu','career','model','code','reveal']) $(s).hidden = (s!==id); }
 function resize(){ const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
 window.addEventListener('resize', resize); resize();
 
+// ---------- место ----------
+function applyLocation(){
+  const L = LOC(); const wed = L.gimmick==='wedding';
+  heads[1].setVisible(wed); heads[0].mesh.position.x = wed ? -0.9 : 0; heads[0].body.position.x = heads[0].mesh.position.x; heads[0].chair.forEach(c=>c.position.x=heads[0].mesh.position.x); heads[0].extras.forEach(c=>c.position.x=heads[0].mesh.position.x);
+  witnesses[0].visible(L.gimmick==='witness' || wed); witnesses[1].visible(wed);
+  kids.forEach(k=>k.g.visible = L.gimmick==='kids');
+  wallBack.material.color.set(wed ? 0xfff1f5 : L.gimmick==='date' ? 0xe9dcd0 : L.gimmick==='kids' ? 0xfff3c4 : 0xd7efe4);
+  $('locInfo').textContent = L.name; $('suspicion').style.display = (L.gimmick==='witness'||wed) ? 'block' : 'none';
+  $('suspText').textContent = wed ? 'Гости не смотрят' : 'Она не смотрит';
+}
+
 // ---------- раунд ----------
-function startRound(ref){
-  currentRef = ref; eyeHits = 0; shots = 0; headHits = 0;
-  clearPaint(); for(const s of splats) scene.remove(s); splats.length = 0; for(const p of projectiles) scene.remove(p.mesh); projectiles.length = 0;
+function startRound(refIds, code){
+  const L = LOC(); applyLocation();
+  activeHeads().forEach((h,i)=>{ h.ref = REFS[refIds[i]]; h.clear(); h.yaw = 0; h.pitch = 0; });
+  currentCode = code||null; shots = 0; headHits = 0; taboos = 0; kidHits = 0; noticed = false; suspicion = 0; mirrorSent = false; liveMirror = null;
+  for(const s of splats) scene.remove(s); splats.length = 0; for(const p of projectiles) scene.remove(p.mesh); projectiles.length = 0;
+  witnesses.forEach(w=>{ w.looking=false; w.next = nowMs()+4000+Math.random()*4000; });
   manualYaw = 0; manualPitch = 0; reloadLeft = 0; zoom = false;
   show(null); $('hud').hidden = false; stage.classList.add('playing'); $('crosshair').style.display = 'block';
   setLine(0); weaponIdx = -1; setWeapon(0); reloadLeft = 0;
   camera.position.copy(lineCamPos(0)); camPos.copy(camera.position); lookAt.set(0,1.38,0); lookTarget.copy(lookAt);
-  timeLeft = ROUND_SECONDS; countdownEnd = performance.now()+3000; state = 'countdown'; $('countdown').hidden = false; revealShown = false;
-  $('timer').textContent = ROUND_SECONDS; $('timer').classList.remove('hurry');
+  roundSeconds = L.seconds; timeLeft = roundSeconds; countdownEnd = nowMs()+3000; state = 'countdown'; $('countdown').hidden = false; revealShown = false;
+  $('timer').textContent = roundSeconds; $('timer').classList.remove('hurry');
+  pushShooterPresence();
 }
-function endRound(){ if(state!=='play') return; state = 'reveal'; revealT = 0; revealStart = performance.now(); zoom = false; stage.classList.remove('playing'); $('crosshair').style.display='none'; $('scope').style.display='none'; }
+function endRound(){ if(state!=='play') return; state = 'reveal'; revealT = 0; revealStart = nowMs(); zoom = false; stage.classList.remove('playing'); $('crosshair').style.display='none'; $('scope').style.display='none'; activeHeads().forEach(h=>h.hand.visible=false); pushShooterPresence(); }
+function computeResult(){
+  const hs = activeHeads(); const res = hs.map(h=>h.score());
+  let match = Math.round(res.reduce((s,r)=>s+r.match,0)/res.length);
+  if(noticed) match = Math.max(0, match-30);
+  const pts = res.reduce((s,r)=>s+r.pts,0);
+  return { res, match, pts, stars: starsFor(match) };
+}
 function showPolaroid(){
   revealShown = true; sound('tada');
-  const r = scoreRef(currentRef, eyeHits);
-  drawFaceImage($('revRef'), currentRef, null); drawFaceImage($('revRes'), null, paintCanvas);
-  $('stampPct').textContent = r.match+'%';
+  const hs = activeHeads(); const R = computeResult();
+  const pairs = $('revPairs'); pairs.innerHTML = '';
+  hs.forEach((h,i)=>{ const row = document.createElement('div'); row.className = 'pair';
+    const c1 = document.createElement('canvas'), c2 = document.createElement('canvas'); c1.width=c1.height=c2.width=c2.height=480;
+    drawFaceImage(c1, h.ref, null); drawFaceImage(c2, null, h.paint);
+    const s1 = document.createElement('div'); s1.className='shot'; s1.appendChild(c1); s1.insertAdjacentHTML('beforeend', `<div class="lbl">РЕФЕРЕНС${hs.length>1?': '+h.ref.name:''}</div>`);
+    const s2 = document.createElement('div'); s2.className='shot'; s2.appendChild(c2); s2.insertAdjacentHTML('beforeend', `<div class="lbl">РЕЗУЛЬТАТ ${R.res[i].match}%</div>`);
+    row.appendChild(s1); row.appendChild(s2); pairs.appendChild(row); });
+  $('stampPct').textContent = R.match+'%';
   const cl = $('checklist'); cl.innerHTML = '';
-  for(const z of r.zones){ const ok = z.ok?'ok':'no';
-    cl.insertAdjacentHTML('beforeend', `<div><span class="swatch" style="background:${COLORS[z.color].hex};display:inline-block;vertical-align:middle;margin-right:8px"></span>${z.name} <span class="muted">(${COLORS[z.color].name})</span></div><div class="bar ${ok}"><i style="width:${Math.round(z.cov*100)}%"></i></div><div class="mark ${ok}">${z.ok?'✔':'✘'} ${Math.round(z.cov*100)}%</div>`); }
-  if(r.over>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Залёт мимо зон</div><div></div><div class="mark no">−${Math.round(r.penalty)}%</div>`);
-  if(eyeHits>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Попаданий в глаз</div><div></div><div class="mark no">${eyeHits} × −10</div>`);
-  $('verdictName').textContent = 'Референс: '+currentRef.name+' · выстрелов: '+shots+', в лицо: '+headHits;
-  $('verdictPts').textContent = 'Очки стрелка: '+r.pts;
+  hs.forEach((h,i)=>{ const r = R.res[i]; if(hs.length>1) cl.insertAdjacentHTML('beforeend', `<div class="hd">${h.ref.name}</div>`);
+    for(const z of r.zones){ const ok = z.ok?'ok':'no';
+      cl.insertAdjacentHTML('beforeend', `<div><span class="swatch" style="background:${COLORS[z.color].hex};display:inline-block;vertical-align:middle;margin-right:8px"></span>${z.name} <span class="muted">(${COLORS[z.color].name})</span></div><div class="bar ${ok}"><i style="width:${Math.round(z.cov*100)}%"></i></div><div class="mark ${ok}">${z.ok?'✔':'✘'} ${Math.round(z.cov*100)}%</div>`); }
+    if(r.over>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Залёт мимо зон</div><div></div><div class="mark no">−${Math.round(r.penalty)}%</div>`);
+    if(r.eyeHits>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Попаданий в глаз</div><div></div><div class="mark no">${r.eyeHits} × −10</div>`); });
+  if(noticed) cl.insertAdjacentHTML('beforeend', `<div class="muted">ЗАМЕТИЛА</div><div></div><div class="mark no">−30%</div>`);
+  if(taboos>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Запретных слов у Модели</div><div></div><div class="mark no">${taboos} × −${TABOO_PENALTY} с</div>`);
+  if(kidHits>0) cl.insertAdjacentHTML('beforeend', `<div class="muted">Попаданий в детей</div><div></div><div class="mark no">${kidHits} × −5 с</div>`);
+  $('verdictName').textContent = LOC().name+' · выстрелов: '+shots+', в лицо: '+headHits;
+  $('verdictPts').textContent = 'Очки стрелка: '+R.pts;
+  $('starsBig').textContent = '★'.repeat(R.stars) + '☆'.repeat(3-R.stars);
+  // прогресс
+  const L = LOC(); const before = starsOf(L); progress.stars[L.id] = before + R.stars; saveProgress();
+  const next = LOCATIONS[locIdx+1]; let note = '';
+  if(next){ const have = starsOf(L); note = have>=UNLOCK_STARS ? (before<UNLOCK_STARS ? 'Открыто новое место: '+next.name+'!' : next.name+' уже открыт.') : 'До «'+next.name+'» ещё '+(UNLOCK_STARS-have)+' ★'; }
+  else note = 'Это последнее место. Свадьба пройдена на '+R.match+'%.';
+  $('unlockNote').textContent = note;
   $('hud').hidden = true; show('reveal');
+  liveResult = { match:R.match, stars:R.stars }; pushShooterPresence();
 }
 
 // ---------- стрельба ----------
 function ndcOffsetFromDeg(dx, dy){ const th = Math.tan(deg(camera.fov/2)); return [ Math.tan(deg(dx))/(th*camera.aspect), Math.tan(deg(dy))/th ]; }
+function hitTargets(){ const list = [...colliders]; for(const h of activeHeads()){ list.push(h.mesh); if(h.hand.visible) list.push(h.hand); } witnesses.forEach(w=>{ if(w.on){ list.push(w.mesh); list.push(w.body); } }); kids.forEach(k=>{ if(k.g.visible) list.push(...k.parts); }); return list.filter(o=>o.visible); }
 function fire(){
   const w = WEAPONS[weaponIdx]; if(reloadLeft>0) return;
   reloadLeft = w.reload; shots++;
+  if(witnesses.some(x=>x.on && x.looking)){ suspicion = Math.min(100, suspicion+22); banner('ОНА СМОТРИТ!', 700); }
   const spread = zoom ? w.spreadZoom : w.spread; const a = Math.random()*Math.PI*2, d = Math.sqrt(Math.random())*spread;
   const [ox,oy] = ndcOffsetFromDeg(Math.cos(a)*d, Math.sin(a)*d);
-  const ndc = new THREE.Vector2(aimNdc.x+ox, aimNdc.y+oy);
-  raycaster.setFromCamera(ndc, camera);
-  gunGroup.position.z += 0.08; // отдача
+  raycaster.setFromCamera(new THREE.Vector2(aimNdc.x+ox, aimNdc.y+oy), camera);
+  gunGroup.position.z += 0.08;
   const muzzle = camera.localToWorld(new THREE.Vector3(0.32,-0.24,-0.85));
   if(w.kind==='hitscan'){
-    raycaster.far = 60;
-    const hits = raycaster.intersectObjects([head, ...colliders], false);
-    if(hits.length){ const h = hits[0]; tracer(muzzle, h.point, COLORS[w.color].hex);
-      if(h.object===head) hitHead(h.point, w); else { splat(h.point, h.face.normal, w, h.object); sound('miss'); } }
-    else sound('miss');
+    raycaster.far = 60; const hits = raycaster.intersectObjects(hitTargets(), false);
+    if(hits.length){ const h = hits[0]; tracer(muzzle, h.point, COLORS[w.color].hex); resolveHit(h, w); } else sound('miss');
   } else {
-    const dir = raycaster.ray.direction.clone();
     const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.08,10,8), mat(0xff8fb1)); mesh.position.copy(muzzle); scene.add(mesh);
-    projectiles.push({ mesh, vel: dir.multiplyScalar(w.speed), w, life: 4 });
-    sound('pop');
+    projectiles.push({ mesh, vel: raycaster.ray.direction.clone().multiplyScalar(w.speed), w, life: 4 }); sound('pop');
   }
 }
-function hitHead(point, w){
-  const local = head.worldToLocal(point.clone());
+function resolveHit(h, w){
+  const head = activeHeads().find(x=>x.mesh===h.object); const handOf = activeHeads().find(x=>x.hand===h.object);
+  if(head) return hitHead(head, h.point, w);
+  if(handOf){ banner('В ЛАДОНЬ!', 900); splat(h.point, h.face.normal, w, h.object); sound('miss'); return; }
+  if(witnesses.some(x=>x.on && (x.mesh===h.object || x.body===h.object))){ suspicion = Math.min(100, suspicion+45); banner('ЭЙ! Не в неё!', 1000); sound('alarm'); splat(h.point, h.face.normal, w, h.object); return; }
+  if(kids.some(k=>k.parts.includes(h.object))){ kidHits++; roundEnd -= 5000; banner('В РЕБЁНКА! −5 с', 1000); sound('alarm'); splat(h.point, h.face.normal, w, h.object); return; }
+  splat(h.point, h.face.normal, w, h.object); sound('miss');
+}
+function hitHead(head, point, w){
+  const local = head.mesh.worldToLocal(point.clone());
   if(local.z < 0.04){ banner('Затылок! Мимо лица', 900); sound('miss'); return; }
   const u = local.x/FACE_SIZE+0.5, v = local.y/FACE_SIZE+0.5;
-  headHits++; lastHit = { u, v, weapon: w.name };
-  stamp(u, v, w.radius, w.color, LINES[lineIdx].mult, w.kind==='projectile');
+  headHits++; lastHit = { u, v, weapon: w.name, head: head.label };
+  head.stamp(u, v, w.radius, w.color, LINES[lineIdx].mult, w.kind==='projectile');
   sound(w.kind==='projectile' ? 'pop' : 'kiss');
-  for(const ek of ['eyeL','eyeR']){ if(inZone(u,v,ZONES[ek])){ const want = currentRef.zones.find(z=>z.z===ek); if(!want || want.c!==w.color){ eyeHits++; banner('В ГЛАЗ! −10', 1100); } } }
+  for(const ek of ['eyeL','eyeR']){ if(inZone(u,v,ZONES[ek])){ const want = head.ref.zones.find(z=>z.z===ek); if(!want || want.c!==w.color){ head.eyeHits++; banner('В ГЛАЗ! −10', 1100); } } }
 }
 function splat(point, normal, w, obj){
   const n = normal.clone().transformDirection(obj.matrixWorld);
@@ -557,6 +703,7 @@ window.addEventListener('keydown', e => {
     if(e.code==='Digit1') setWeapon(0); else if(e.code==='Digit2') setWeapon(1); else if(e.code==='Digit3') setWeapon(2);
     else if(e.code==='KeyF') setLine((lineIdx+1)%LINES.length);
     else if(e.code==='KeyH'){ headSway = !headSway; banner(headSway?'Голова крутится':'Голова замерла', 900); }
+    else if(e.code==='KeyT'){ taboos++; roundEnd -= TABOO_PENALTY*1000; banner('ЗАПРЕТНОЕ СЛОВО! −'+TABOO_PENALTY+' с', 1100); sound('alarm'); }
     else if(e.code==='ArrowLeft') manualYaw = clamp(manualYaw-5,-35,35); else if(e.code==='ArrowRight') manualYaw = clamp(manualYaw+5,-35,35);
     else if(e.code==='ArrowUp') manualPitch = clamp(manualPitch-4,-20,20); else if(e.code==='ArrowDown') manualPitch = clamp(manualPitch+4,-20,20);
     else if(e.code==='Enter') endRound();
@@ -564,91 +711,173 @@ window.addEventListener('keydown', e => {
   }
 });
 
+// ---------- живая связь (комната), если страница это умеет ----------
+let room = null, peers = [], liveMirror = null, liveResult = null, lastDodgeSeen = 0;
+const modelPeer = () => peers.find(p => !p.isMe && p.presence && p.presence.role==='model');
+const shooterPeer = () => peers.find(p => !p.isMe && p.presence && p.presence.role==='shooter');
+let myRole = null; // 'shooter' | 'model'
+(async () => {
+  try{ if(!window.claude || !window.claude.use) return; room = await window.claude.use('room'); if(!room) return;
+    room.onPeers(ch => { peers = ch.peers; onPeersChanged(); }, () => { room = null; });
+  }catch(e){ room = null; }
+})();
+function pushShooterPresence(){
+  if(!room || myRole!=='shooter') return;
+  const p = { role:'shooter', phase:state, loc:locIdx, seconds:roundSeconds, roundEndIn: state==='play' ? Math.round(roundEnd-nowMs()) : null, sentAt: Date.now(), taboos, mirror: liveMirror, result: liveResult };
+  room.presence(p).catch(()=>{});
+}
+let lastPresencePush = 0;
+function onPeersChanged(){
+  if(myRole==='shooter'){ const m = modelPeer(); $('liveChip').innerHTML = m ? '<span class="chip on">Модель на связи</span>' : '<span class="chip off">Модель по кодам</span>';
+    if(m && m.presence.code && state!=='play' && state!=='countdown' && !$('code').hidden){ $('codeInput').value = String(m.presence.code); } }
+  if(myRole==='model') renderLive();
+}
+
 // ---------- цикл ----------
 function loop(now){ requestAnimationFrame(loop); frame(now); }
 function frame(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now; t += dt;
-  // голова
-  const swayYaw = headSway ? 22*Math.sin(t*0.55) + 9*Math.sin(t*1.3+1.0) : 0;
-  const swayPitch = headSway ? 9*Math.sin(t*0.8+2.0) : 0;
-  let tyaw = clamp(swayYaw+manualYaw,-35,35), tpitch = clamp(swayPitch+manualPitch,-20,20);
-  if(state==='reveal'){ tyaw = 0; tpitch = 0; }
-  headYaw += (tyaw-headYaw)*Math.min(1,dt*4); headPitch += (tpitch-headPitch)*Math.min(1,dt*4);
-  head.rotation.set(deg(headPitch), deg(headYaw), 0);
+  const hs = activeHeads(); const m = modelPeer();
+  // головы
+  hs.forEach((h,i)=>{
+    let tyaw, tpitch;
+    if(i===0 && m && state==='play'){ const pr = m.presence; tyaw = clamp(+pr.yaw||0,-35,35); tpitch = clamp(+pr.pitch||0,-20,20);
+      h.hand.visible = !!pr.hand && state==='play'; if(pr.dodge && pr.dodge>lastDodgeSeen){ lastDodgeSeen = pr.dodge; h.dodgeUntil = now+400; } }
+    else { const sw = headSway ? [22*Math.sin(t*0.55+h.phase) + 9*Math.sin(t*1.3+1.0+h.phase), 9*Math.sin(t*0.8+2.0+h.phase)] : [0,0];
+      tyaw = clamp(sw[0]+(i===0?manualYaw:0),-35,35); tpitch = clamp(sw[1]+(i===0?manualPitch:0),-20,20); if(i===0) h.hand.visible = false; }
+    if(state==='reveal'){ tyaw = 0; tpitch = 0; }
+    h.yaw += (tyaw-h.yaw)*Math.min(1,dt*4); h.pitch += (tpitch-h.pitch)*Math.min(1,dt*4);
+    const dodging = now < h.dodgeUntil; h.mesh.rotation.set(deg(h.pitch), deg(h.yaw), dodging ? 0.55 : 0);
+    h.mesh.position.x += ((h.mesh.position.x*0) + (dodging ? -0.28 : 0) + (hs.length>1 ? (i===0?-0.9:0.9) : 0) - h.mesh.position.x)*Math.min(1,dt*14);
+  });
+  witnesses.forEach(w=>w.update(now, dt));
+  if(LOC().gimmick==='kids' && (state==='play'||state==='countdown')){ kids.forEach(k=>{ k.g.position.x += k.dir*k.speed*dt; if(k.g.position.x>3.2){ k.dir=-1; } if(k.g.position.x<-3.2){ k.dir=1; } k.g.rotation.y = k.dir>0?Math.PI/2:-Math.PI/2; k.g.position.y = Math.abs(Math.sin(t*6+k.speed))*0.08; }); }
+  // подозрение
+  if(state==='play' && (LOC().gimmick==='witness'||LOC().gimmick==='wedding')){ const looking = witnesses.some(x=>x.on && x.looking); if(suspicion<100) suspicion = Math.max(0, suspicion - 5*dt);
+    $('suspFill').style.width = suspicion+'%'; $('suspicion').classList.toggle('looking', looking); $('suspText').textContent = looking ? (LOC().gimmick==='wedding' ? 'ГОСТИ СМОТРЯТ' : 'ОНА СМОТРИТ') : (LOC().gimmick==='wedding' ? 'Гости не смотрят' : 'Она не смотрит');
+    if(suspicion>=100){ noticed = true; banner('ЗАМЕТИЛА!', 1800); sound('alarm'); endRound(); } }
   // камера
   if(state==='play' || state==='countdown'){ camTarget.copy(lineCamPos(lineIdx)); lookTarget.set(0,1.38,0); }
-  if(state==='reveal'){ camTarget.set(0,1.42,1.05); lookTarget.set(0,1.38,0); }
+  if(state==='reveal'){ const wed = hs.length>1; camTarget.set(0,1.42,wed?2.2:1.05); lookTarget.set(0,1.38,0); }
   camPos.lerp(camTarget, Math.min(1, dt*6)); camera.position.copy(camPos);
   lookAt.lerp(lookTarget, Math.min(1, dt*6)); camera.lookAt(lookAt);
   const fovT = (state==='reveal') ? 40 : (zoom ? 15 : 60);
   fovCur += (fovT-fovCur)*Math.min(1,dt*12); if(Math.abs(camera.fov-fovCur)>0.01){ camera.fov = fovCur; camera.updateProjectionMatrix(); }
   gunGroup.position.z += (-0.55-gunGroup.position.z)*Math.min(1,dt*10);
   gunGroup.visible = (state==='play' || state==='countdown');
-  // перезарядка и HUD
   if(reloadLeft>0) reloadLeft = Math.max(0, reloadLeft-dt);
   const w = WEAPONS[weaponIdx>=0?weaponIdx:0]; $('reloadFill').style.width = (100*(1-reloadLeft/w.reload))+'%';
-  // отсчёт
-  if(state==='countdown'){ const countdownLeft = (countdownEnd-now)/1000; const n = Math.ceil(countdownLeft); const cd = $('countdown');
-    cd.textContent = countdownLeft>0.2 ? (n>0? n : '') : 'КРАСЬ!'; if(countdownLeft<=0){ state='play'; roundEnd = now + ROUND_SECONDS*1000; cd.hidden = true; banner('КРАСЬ!', 800); } }
-  // таймер (по часам, а не по кадрам)
+  if(state==='countdown'){ const cl = (countdownEnd-now)/1000; const n = Math.ceil(cl); const cd = $('countdown');
+    cd.textContent = cl>0.2 ? (n>0? n : '') : 'КРАСЬ!'; if(cl<=0){ state='play'; roundEnd = now + roundSeconds*1000; cd.hidden = true; banner('КРАСЬ!', 800); pushShooterPresence(); } }
   if(state==='play'){ const prev = Math.ceil(timeLeft); timeLeft = (roundEnd-now)/1000; const n = Math.max(0, Math.ceil(timeLeft)); $('timer').textContent = n;
     if(n<=10){ $('timer').classList.add('hurry'); if(n!==prev) sound('tick'); }
+    if(!mirrorSent && (roundSeconds-timeLeft) >= roundSeconds*0.58){ mirrorSent = true; liveMirror = packGrid(hs[0].grid); banner('ЗЕРКАЛЬЦЕ У МОДЕЛИ', 1200); pushShooterPresence(); }
+    if(now-lastPresencePush > 1000){ lastPresencePush = now; pushShooterPresence(); }
     if(timeLeft<=0) endRound(); }
   if(state==='reveal'){ revealT = (now-revealStart)/1000; if(revealT>2.4 && !revealShown) showPolaroid(); }
-  // прицел с покачиванием
   const sw = w.sway * (zoom?1:0.6); const [sx,sy] = ndcOffsetFromDeg(sw*Math.sin(t*1.7)+sw*0.5*Math.sin(t*3.1), sw*Math.cos(t*1.3)+sw*0.5*Math.sin(t*2.6));
   aimNdc.set(mouseNdc.x+sx, mouseNdc.y+sy);
   if(state==='play'){ const W = stage.clientWidth, H = stage.clientHeight; const px = (aimNdc.x+1)/2*W, py = (1-aimNdc.y)/2*H;
-    const ch = $('crosshair'); ch.style.transform = `translate(${px}px,${py}px)`;
-    const sc = $('scope'); sc.style.display = zoom?'block':'none'; sc.style.setProperty('--sx', px+'px'); sc.style.setProperty('--sy', py+'px'); }
-  // снаряды базуки: аналитическая парабола, проверка луча за кадр
+    $('crosshair').style.transform = `translate(${px}px,${py}px)`; const sc = $('scope'); sc.style.display = zoom?'block':'none'; sc.style.setProperty('--sx', px+'px'); sc.style.setProperty('--sy', py+'px'); }
   for(let i=projectiles.length-1;i>=0;i--){ const p = projectiles[i]; p.vel.y -= 9.8*dt; const from = p.mesh.position.clone(); const step = p.vel.clone().multiplyScalar(dt);
-    raycaster.set(from, step.clone().normalize()); raycaster.far = step.length()+0.06; const hits = raycaster.intersectObjects([head, ...colliders], false);
-    if(hits.length){ const h = hits[0]; if(h.object===head) hitHead(h.point, p.w); else splat(h.point, h.face.normal, p.w, h.object); scene.remove(p.mesh); projectiles.splice(i,1); continue; }
+    raycaster.set(from, step.clone().normalize()); raycaster.far = step.length()+0.06; const hits = raycaster.intersectObjects(hitTargets(), false);
+    if(hits.length){ resolveHit(hits[0], p.w); scene.remove(p.mesh); projectiles.splice(i,1); continue; }
     p.mesh.position.add(step); p.life -= dt; if(p.life<=0){ scene.remove(p.mesh); projectiles.splice(i,1); } }
   for(let i=tracers.length-1;i>=0;i--){ tracers[i].life -= dt; if(tracers[i].life<=0){ scene.remove(tracers[i].l); tracers.splice(i,1); } }
   renderer.render(scene, camera);
 }
 requestAnimationFrame(loop);
-// отладочные ручки (для проверки без мыши): window.__ms
-window.__ms = { start:i=>startRound(REFS[i]), play:()=>{ state='play'; roundEnd=performance.now()+ROUND_SECONDS*1000; $('countdown').hidden=true; },
-  aim:(x,y)=>mouseNdc.set(x,y), fire, end:endRound, polaroid:showPolaroid, score:()=>scoreRef(currentRef,eyeHits), frame:()=>frame(performance.now()),
-  setWeapon, setLine, state:()=>state, grid, codeToIdx, refs:REFS, stamp, get ref(){ return currentRef; }, get lastHit(){ return lastHit; }, get head(){ return { yaw: headYaw, pitch: headPitch }; }, get zoom(){ return zoom; }, set zoom(v){ zoom=v; } };
+// отладочные ручки: window.__ms
+window.__ms = { start:(i,ids)=>{ locIdx=i; startRound(ids||LOCATIONS[i].pool[0]); }, play:()=>{ state='play'; roundEnd=nowMs()+roundSeconds*1000; $('countdown').hidden=true; },
+  aim:(x,y)=>mouseNdc.set(x,y), fire, end:endRound, polaroid:showPolaroid, result:computeResult, frame:()=>frame(nowMs()), setWeapon, setLine, state:()=>state, heads, codeToIdx, refs:REFS, locs:LOCATIONS,
+  get lastHit(){ return lastHit; }, get suspicion(){ return suspicion; }, set suspicion(v){ suspicion=v; }, witnesses, kids, get progress(){ return progress; } };
 
-// ---------- экраны ----------
-$('btnShooter').onclick = () => { show('code'); $('codeInput').value=''; setTimeout(()=>$('codeInput').focus(),50); };
-$('btnCodeMenu').onclick = $('btnModelMenu').onclick = $('btnRevealMenu').onclick = () => { state='menu'; $('hud').hidden=true; stage.classList.remove('playing'); $('crosshair').style.display='none'; show('menu'); };
-function tryStart(){ const c = $('codeInput').value.replace(/\D/g,''); if(c.length!==4){ $('codeInput').style.borderColor='var(--bad)'; $('codeInput').placeholder='4 цифры'; return; } startRound(REFS[codeToIdx(c)]); }
+// ---------- экраны стрелка ----------
+function renderCareer(){
+  const list = $('locList'); list.innerHTML = '';
+  LOCATIONS.forEach((L,i)=>{ const un = isUnlocked(i); const el = document.createElement('div'); el.className = 'loc'+(un?'':' locked'); el.tabIndex = un?0:-1; el.setAttribute('role','button');
+    const st = starsOf(L);
+    el.innerHTML = `<div class="nm">${L.name}</div><div class="stars">${un ? '★'.repeat(Math.min(st,8)) + (st>8?'+'+(st-8):'') + (st===0?'☆':'') : '🔒'}</div><div class="ds">${L.desc} · ${L.seconds} с</div>` + (un ? '' : `<div class="need">Нужно ${UNLOCK_STARS} ★ в «${LOCATIONS[i-1].name}» (есть ${starsOf(LOCATIONS[i-1])})</div>`);
+    if(un){ const go = () => { locIdx = i; applyLocation(); $('codeTitle').textContent = L.name+': введи код, который назвал друг'; show('code'); $('codeInput').value=''; setTimeout(()=>$('codeInput').focus(),50); onPeersChanged(); pushShooterPresence(); };
+      el.onclick = go; el.onkeydown = e => { if(e.key==='Enter'||e.key===' ') go(); }; }
+    list.appendChild(el); });
+}
+$('btnShooter').onclick = () => { myRole = 'shooter'; renderCareer(); show('career'); pushShooterPresence(); };
+$('btnCareerMenu').onclick = $('btnModelMenu').onclick = $('btnRevealMenu').onclick = () => { state='menu'; $('hud').hidden=true; stage.classList.remove('playing'); $('crosshair').style.display='none'; show('menu'); };
+$('btnResetProgress').onclick = () => { progress = { stars:{} }; saveProgress(); renderCareer(); };
+$('btnCodeBack').onclick = $('btnRevealCareer').onclick = () => { state='menu'; $('hud').hidden=true; renderCareer(); show('career'); };
+function tryStart(){ const c = $('codeInput').value.replace(/\D/g,''); if(c.length!==4){ $('codeInput').style.borderColor='var(--bad)'; $('codeInput').placeholder='4 цифры'; return; } const pool = LOC().pool; startRound(pool[codeToIdx(c, pool.length)], c); }
 $('btnStart').onclick = tryStart;
 $('codeInput').addEventListener('keydown', e => { if(e.key==='Enter') tryStart(); });
-$('btnRandom').onclick = () => startRound(REFS[Math.floor(Math.random()*REFS.length)]);
-$('btnAgain').onclick = () => { show('code'); $('codeInput').value=''; setTimeout(()=>$('codeInput').focus(),50); };
+$('btnRandom').onclick = () => { const pool = LOC().pool; startRound(pool[Math.floor(Math.random()*pool.length)]); };
+$('btnAgain').onclick = () => { $('codeTitle').textContent = LOC().name+': введи код, который назвал друг'; show('code'); $('codeInput').value=''; setTimeout(()=>$('codeInput').focus(),50); state='menu'; pushShooterPresence(); };
 $('endBtn').onclick = endRound;
 
-// карточка Модели
-let modelTimerId = null, modelTimeLeft = 60;
-function stopModelTimer(){ clearInterval(modelTimerId); modelTimerId=null; modelTimeLeft=ROUND_SECONDS; $('modelTimer').textContent = ROUND_SECONDS; $('btnModelTimer').textContent='Запустить '+ROUND_SECONDS+' секунд'; }
+// ---------- карточка Модели ----------
+let modelLoc = 0, modelTimerId = null, modelTimeLeft = 60, modelPick = null;
+function stopModelTimer(){ clearInterval(modelTimerId); modelTimerId=null; const s = LOCATIONS[modelLoc].seconds; modelTimeLeft=s; $('modelTimer').textContent = s; $('btnModelTimer').textContent='Запустить таймер ('+s+' с)'; }
+function modelShowLoc(){
+  $('modelTitle').textContent = 'Ты Модель. Где играете?'; $('modelHint').hidden = true; $('refGrid').innerHTML=''; $('refOne').style.display='none'; $('btnReroll').hidden = true; $('btnModelLocBack').hidden = true;
+  const box = $('modelLoc'); box.innerHTML=''; box.hidden = false;
+  LOCATIONS.forEach((L,i)=>{ const b = document.createElement('button'); b.className='btn secondary'; b.innerHTML = `<div>${L.name}</div><div class="muted small" style="font-weight:500">${L.seconds} с</div>`; b.onclick = () => { modelLoc = i; rollThree(); }; box.appendChild(b); });
+}
 function rollThree(){
-  const idx = [...REFS.keys()].sort(()=>Math.random()-0.5).slice(0,3);
-  const g = $('refGrid'); g.innerHTML = ''; $('refOne').style.display='none'; g.style.display='grid'; $('btnReroll').style.display='';
-  for(const i of idx){ const ref = REFS[i], code = codeFor(i);
+  const L = LOCATIONS[modelLoc]; const pool = L.pool; const n = Math.min(3, pool.length);
+  const idx = [...pool.keys()].sort(()=>Math.random()-0.5).slice(0,n);
+  $('modelTitle').textContent = L.name+'. Выбери референс и назови стрелку код'; $('modelHint').hidden = false; $('modelLoc').hidden = true; $('btnReroll').hidden = pool.length<=3; $('btnModelLocBack').hidden = false;
+  const g = $('refGrid'); g.innerHTML = ''; $('refOne').style.display='none'; g.style.display='grid';
+  for(const i of idx){ const ids = pool[i], code = codeFor(i, pool.length);
     const card = document.createElement('div'); card.className='refcard'; card.setAttribute('role','button'); card.tabIndex=0;
-    const cv = document.createElement('canvas'); cv.width=cv.height=360; drawFaceImage(cv, ref, null);
-    card.appendChild(cv); card.insertAdjacentHTML('beforeend', `<div class="name">${ref.name}</div><div class="code">${code}</div><div class="muted small">нажми, чтобы выбрать</div>`);
-    const pick = () => { pickRef(ref, code); }; card.onclick = pick; card.onkeydown = e => { if(e.key==='Enter'||e.key===' ') pick(); };
+    const faces = document.createElement('div'); faces.className='faces';
+    for(const id of ids){ const cv = document.createElement('canvas'); cv.width=cv.height=360; drawFaceImage(cv, REFS[id], null); faces.appendChild(cv); }
+    card.appendChild(faces);
+    card.insertAdjacentHTML('beforeend', `<div class="name">${ids.map(id=>REFS[id].name).join(' + ')}</div><div class="code">${code}</div><div class="muted small">нажми, чтобы выбрать</div>`);
+    const pick = () => pickRef(ids, code); card.onclick = pick; card.onkeydown = e => { if(e.key==='Enter'||e.key===' ') pick(); };
     g.appendChild(card); }
 }
-function pickRef(ref, code){
-  $('refGrid').style.display='none'; $('btnReroll').style.display='none'; const one = $('refOne'); one.style.display='flex';
-  drawFaceImage($('refOneImg'), ref, null); $('refOneName').textContent = ref.name; $('refOneCode').textContent = code;
-  const zl = $('refOneZones'); zl.innerHTML=''; for(const zr of ref.zones){ const z = zoneDef(zr); zl.insertAdjacentHTML('beforeend', `<div><span class="swatch" style="background:${COLORS[zr.c].hex}"></span>${z.name}${zr.big?' (большая)':''} — ${COLORS[zr.c].name}</div>`); }
-  stopModelTimer();
+function pickRef(ids, code){
+  modelPick = { ids, code };
+  $('refGrid').style.display='none'; $('btnReroll').hidden = true; const one = $('refOne'); one.style.display='flex';
+  const faces = $('refOneFaces'); faces.innerHTML=''; for(const id of ids){ const cv = document.createElement('canvas'); cv.className='face'; cv.width=cv.height=480; drawFaceImage(cv, REFS[id], null); faces.appendChild(cv); }
+  $('refOneName').textContent = ids.map(id=>REFS[id].name).join(' + '); $('refOneCode').textContent = code;
+  const tb = $('refOneTaboo'); tb.innerHTML = '<span class="muted small" style="border:0;text-decoration:none;color:var(--muted)">Нельзя говорить:</span>'; for(const id of ids) for(const wd of REFS[id].taboo) tb.insertAdjacentHTML('beforeend', `<span>${wd}</span>`);
+  const zl = $('refOneZones'); zl.innerHTML=''; for(const id of ids) for(const zr of REFS[id].zones){ const z = zoneDef(zr); zl.insertAdjacentHTML('beforeend', `<div><span class="swatch" style="background:${COLORS[zr.c].hex}"></span>${z.name}${zr.big?' (большая)':''} — ${COLORS[zr.c].name}${ids.length>1?`<span class="who">${REFS[id].name}</span>`:''}</div>`); }
+  stopModelTimer(); liveState = { hand:3, yaw:0, pitch:0 }; renderLive(); pushModelPresence();
 }
-$('btnModel').onclick = () => { show('model'); rollThree(); };
+$('btnModel').onclick = () => { myRole = 'model'; show('model'); modelShowLoc(); };
 $('btnReroll').onclick = rollThree;
-$('btnModelBack').onclick = () => { stopModelTimer(); rollThree(); };
-$('btnModelTimer').onclick = () => { if(modelTimerId){ stopModelTimer(); return; } modelTimeLeft = ROUND_SECONDS; $('btnModelTimer').textContent='Сбросить';
+$('btnModelLocBack').onclick = modelShowLoc;
+$('btnModelBack').onclick = () => { stopModelTimer(); modelPick = null; pushModelPresence(); rollThree(); };
+$('btnModelTimer').onclick = () => { if(modelTimerId){ stopModelTimer(); return; } const s = LOCATIONS[modelLoc].seconds; modelTimeLeft = s; $('btnModelTimer').textContent='Сбросить';
   modelTimerId = setInterval(()=>{ modelTimeLeft--; $('modelTimer').textContent = Math.max(0,modelTimeLeft); if(modelTimeLeft<=0){ clearInterval(modelTimerId); modelTimerId=null; $('modelTimer').textContent='Время! Проси показать экран'; $('btnModelTimer').textContent='Ещё раз'; } }, 1000); };
+$('betRange').oninput = () => { $('betVal').textContent = $('betRange').value+'%'; };
+
+// живой пульт Модели
+let liveState = { hand:3, yaw:0, pitch:0 }, held = null, holdTimer = null, handTimer = null, dodgeCd = 0, lastShooterPhase = null;
+function pushModelPresence(){ if(!room || myRole!=='model') return; room.presence({ role:'model', code: modelPick ? modelPick.code : null, yaw: Math.round(liveState.yaw), pitch: Math.round(liveState.pitch), hand: !!liveState.handOn, dodge: liveState.dodge||0, bet: +$('betRange').value }).catch(()=>{}); }
+function renderLive(){
+  const sp = shooterPeer(); const live = $('live'); const on = !!(room && sp);
+  live.style.display = on ? 'flex' : 'none'; $('offlineTimer').style.display = on ? 'none' : 'flex';
+  if(!on) return; const pr = sp.presence;
+  const phaseName = { menu:'ждём раунд', countdown:'сейчас начнётся', play:'КРАСЯТ', reveal:'раскрытие' }[pr.phase] || 'ждём раунд';
+  $('livePhase').textContent = phaseName + ' · ' + (LOCATIONS[pr.loc] ? LOCATIONS[pr.loc].name : '');
+  if(pr.phase!==lastShooterPhase){ lastShooterPhase = pr.phase; if(pr.phase==='countdown'){ liveState.hand = 3; liveState.handOn=false; $('btnHand').textContent='Ладонь (3)'; $('liveResult').textContent=''; $('mirrorWrap').style.display='none'; pushModelPresence(); } }
+  if(pr.phase==='play' && pr.roundEndIn!=null){ const left = Math.max(0, Math.round((pr.roundEndIn - (Date.now()-pr.sentAt))/1000)); $('liveTimer').textContent = left; }
+  else $('liveTimer').textContent = pr.phase==='reveal' ? 'СТОП' : '—';
+  if(pr.mirror){ $('mirrorWrap').style.display='flex'; drawGridImage($('mirror'), pr.mirror); }
+  if(pr.phase==='reveal' && pr.result){ const bet = +$('betRange').value; const won = Math.abs(bet-pr.result.match)<=10; $('liveResult').textContent = 'Результат: '+pr.result.match+'% · '+'★'.repeat(pr.result.stars)+'☆'.repeat(3-pr.result.stars)+' · ставка '+bet+'% '+(won?'сыграла!':'мимо'); }
+  const canAct = pr.phase==='play'; $('btnHand').disabled = !canAct || liveState.hand<=0; $('btnDodge').disabled = !canAct || nowMs()<dodgeCd;
+}
+setInterval(()=>{ if(myRole==='model' && room){ renderLive(); } }, 500);
+function startHold(d){ held = d; clearInterval(holdTimer); holdTimer = setInterval(()=>{ if(held==='left') liveState.yaw = clamp(liveState.yaw-6,-35,35); if(held==='right') liveState.yaw = clamp(liveState.yaw+6,-35,35); if(held==='up') liveState.pitch = clamp(liveState.pitch-4,-20,20); if(held==='down') liveState.pitch = clamp(liveState.pitch+4,-20,20); pushModelPresence(); }, 60); }
+function stopHold(){ held = null; clearInterval(holdTimer); document.querySelectorAll('#pad button').forEach(b=>b.classList.remove('held')); }
+document.querySelectorAll('#pad button[data-d]').forEach(b => { const d = b.dataset.d;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.classList.add('held'); startHold(d); });
+  b.addEventListener('pointerup', stopHold); b.addEventListener('pointercancel', stopHold); b.addEventListener('pointerleave', stopHold); });
+$('padCenter').onclick = () => { liveState.yaw = 0; liveState.pitch = 0; pushModelPresence(); };
+$('btnHand').onclick = () => { if(liveState.hand<=0 || liveState.handOn) return; liveState.hand--; liveState.handOn = true; $('btnHand').textContent = 'Ладонь ('+liveState.hand+') · закрыто'; pushModelPresence();
+  clearTimeout(handTimer); handTimer = setTimeout(()=>{ liveState.handOn = false; $('btnHand').textContent = 'Ладонь ('+liveState.hand+')'; pushModelPresence(); renderLive(); }, 3000); renderLive(); };
+$('btnDodge').onclick = () => { if(nowMs()<dodgeCd) return; dodgeCd = nowMs()+4000; liveState.dodge = Date.now(); pushModelPresence(); renderLive(); };
 
 })();
 </script>
