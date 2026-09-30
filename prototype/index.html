@@ -225,7 +225,7 @@ const COLORS = {
 // Стволы. radius — радиус пятна в метрах, reload — секунды, spread — разброс в градусах.
 const WEAPONS = [
   { name:'Помада-снайперка', color:'red',   kind:'hitscan',    radius:0.02, reload:1.2, zoom:true,  spread:0.35, spreadZoom:0.08, sway:0.22 },
-  { name:'Румяна-базука',    color:'pink',  kind:'projectile', radius:0.05, reload:3.0, zoom:false, spread:0.8,  spreadZoom:0.8,  sway:0.5, speed:14 },
+  { name:'Румяна-базука',    color:'pink',  kind:'projectile', radius:0.05, reload:3.0, zoom:false, spread:0.8,  spreadZoom:0.8,  sway:0.5, speed:24 }, // speed: 24 м/с долетает на 15 м, если целиться ~2 м выше головы
   { name:'Помада, чёрный оттенок', color:'black', kind:'hitscan', radius:0.03, reload:1.5, zoom:true, spread:0.35, spreadZoom:0.08, sway:0.22 }
 ];
 // Зоны лица в координатах холста (0..1, y вверх). Лево/право — со стороны Модели.
@@ -524,7 +524,7 @@ function fire(){
     else sound('miss');
   } else {
     const dir = raycaster.ray.direction.clone();
-    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.06,10,8), mat(0xff8fb1)); mesh.position.copy(muzzle); scene.add(mesh);
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.08,10,8), mat(0xff8fb1)); mesh.position.copy(muzzle); scene.add(mesh);
     projectiles.push({ mesh, vel: dir.multiplyScalar(w.speed), w, life: 4 });
     sound('pop');
   }
