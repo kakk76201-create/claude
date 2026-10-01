@@ -1,0 +1,6 @@
+{
+  "name": "MakeupSniper.Editor",
+  "rootNamespace": "MakeupSniper.EditorTools",
+  "references": ["MakeupSniper.Runtime", "Unity.InputSystem", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"]
+}

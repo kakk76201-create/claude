@@ -1,0 +1,6 @@
+{
+  "name": "MakeupSniper.Runtime",
+  "rootNamespace": "MakeupSniper",
+  "references": ["Unity.InputSystem", "UnityEngine.UI"],
+  "autoReferenced": true
+}

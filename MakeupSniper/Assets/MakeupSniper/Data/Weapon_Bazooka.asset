@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc855b26ffb277b47be89fe0746cf024, type: 3}
+  m_Name: Weapon_Bazooka
+  m_EditorClassIdentifier: MakeupSniper.Runtime::MakeupSniper.WeaponDef
+  displayName: "\u0420\u0443\u043C\u044F\u043D\u0430-\u0431\u0430\u0437\u0443\u043A\u0430"
+  kind: 1
+  color: 2
+  hasAltShade: 0
+  altColor: 3
+  brush: 1
+  altBrush: 2
+  spotRadius: 0.05
+  reload: 3
+  canZoom: 0
+  zoomFov: 15
+  spreadDeg: 0.8
+  spreadZoomDeg: 0.8
+  projectileSpeed: 24
