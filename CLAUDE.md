@@ -36,6 +36,23 @@
 Не делать на этой неделе: сеть, голос, физику снарядов (только аналитические
 траектории), больше двух стволов, UI-полировку, ассеты из магазина.
 
+## Состояние на 01.10.2026
+
+Неделя 1 в Unity сделана: проект `MakeupSniper/` (Unity 6000.6.3f1, URP), сцена
+`Assets/MakeupSniper/Scenes/Week1.unity`, код в `Assets/MakeupSniper/Scripts`.
+
+- Сцена и все ассеты собираются кодом: меню Unity «Makeup Sniper → Пересобрать сцену
+  недели 1» (`Scripts/Editor/SceneBuilder.cs`). Правки сцены вносить туда, а не руками.
+- Лицо, кисти и картинки референсов рисуются кодом (`FaceArt.cs`), внешних ассетов нет.
+- Отступления от списка выше: у помады есть второй оттенок (чёрный, клавиша B), иначе
+  Панду нечем красить; роль Модели включается Tab; ствол в руках пока один на вид.
+- Проверка без окна Unity (из корня репозитория, пути под Windows):
+  `Unity.exe -batchmode -quit -projectPath MakeupSniper -executeMethod MakeupSniper.EditorTools.SceneBuilder.Build -logFile build.log`
+  и `Unity.exe -batchmode -projectPath MakeupSniper -runTests -testPlatform PlayMode -testResults r.xml -logFile t.log`
+  (то же с `EditMode`). Сквозной тест сохраняет скриншоты в `MakeupSniper/Logs/Shots`.
+- `prototype/index.html` — браузерный прототип с прогрессией (4 места), он же площадка
+  для быстрых проверок идей до переноса в Unity. Прогрессия описана в GDD, раздел 7a.
+
 ## Технические решения (зафиксированы в GDD, не менять без причины)
 
 - Unity 6 LTS, URP, новая Input System.
