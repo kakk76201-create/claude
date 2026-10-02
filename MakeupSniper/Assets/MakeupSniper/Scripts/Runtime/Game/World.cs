@@ -9,6 +9,8 @@ namespace MakeupSniper
     public class World : MonoBehaviour
     {
         public static World Instance { get; private set; }
+        /// <summary>Слой мишеней игроков: по ним попадают выстрелы, но капсулы ходьбы сквозь них проходят.</summary>
+        public const int HitboxLayer = 8;
 
         [Header("Лица и головы: 0 — Модель, 1 — жених")]
         public PaintSurface[] faces = new PaintSurface[0];
@@ -60,6 +62,8 @@ namespace MakeupSniper
         void Awake()
         {
             Instance = this;
+            Physics.IgnoreLayerCollision(HitboxLayer, 0, true);
+            Physics.IgnoreLayerCollision(HitboxLayer, HitboxLayer, true);
         }
 
         void OnDestroy()

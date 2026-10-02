@@ -27,6 +27,8 @@ namespace MakeupSniper
         public TextMesh nameLabel;
         [Tooltip("Розовая клякса на лице, когда игрока забрызгали")]
         public GameObject splatMark;
+        [Tooltip("Мишень для попаданий (отдельный коллайдер на слое 8, не мешает ходьбе)")]
+        public Collider hitBox;
 
         readonly SyncVar<byte> _slot = new SyncVar<byte>();
         readonly SyncVar<string> _name = new SyncVar<string>("");
@@ -140,8 +142,7 @@ namespace MakeupSniper
                 lastHidden = hidden;
                 foreach (var r in bodyRenderers) if (r != null) r.enabled = !hidden;
                 if (nameLabel != null) nameLabel.GetComponent<Renderer>().enabled = !hidden;
-                var col = GetComponent<Collider>();
-                if (col != null && !IsOwner) col.enabled = !hidden;
+                if (hitBox != null) hitBox.enabled = !hidden;
             }
             for (int i = 0; i < weaponModels.Length; i++)
                 if (weaponModels[i] != null && weaponModels[i].activeSelf != (i == Weapon && !hidden)) weaponModels[i].SetActive(i == Weapon && !hidden);

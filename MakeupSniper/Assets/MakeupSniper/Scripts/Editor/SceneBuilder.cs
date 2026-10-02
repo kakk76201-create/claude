@@ -83,6 +83,7 @@ namespace MakeupSniper.EditorTools
             var locations = BuildLocations();
 
             // ---------- префабы ----------
+            NameHitboxLayer();
             NetworkObject playerPrefab = BuildPlayerPrefab(weapons);
             NetworkObject matchPrefab = BuildMatchPrefab();
             RefreshDefaultPrefabs();
@@ -686,7 +687,15 @@ namespace MakeupSniper.EditorTools
             tm.font = font; tm.text = "Игрок"; tm.fontSize = 64; tm.characterSize = 0.022f; tm.anchor = TextAnchor.MiddleCenter;
             labelGo.GetComponent<MeshRenderer>().sharedMaterial = font.material;
 
+            // мишень для попаданий: отдельная капсула на слое 8, с капсулами ходьбы не сталкивается
+            var hitGo = new GameObject("HitBox");
+            hitGo.layer = World.HitboxLayer;
+            hitGo.transform.SetParent(root.transform, false);
+            var hit = hitGo.AddComponent<CapsuleCollider>();
+            hit.center = new Vector3(0f, 0.9f, 0f); hit.radius = 0.32f; hit.height = 1.8f;
+
             var agent = root.AddComponent<PlayerAgent>();
+            agent.hitBox = hit;
             agent.cameraAnchor = anchor;
             agent.weaponHolder = holder;
             agent.weaponModels = models;
@@ -739,6 +748,17 @@ namespace MakeupSniper.EditorTools
         }
 
         // ================= сеть =================
+
+        static void NameHitboxLayer()
+        {
+            var tagManager = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
+            if (tagManager == null || tagManager.Length == 0) return;
+            var so = new SerializedObject(tagManager[0]);
+            var layers = so.FindProperty("layers");
+            if (layers == null || layers.arraySize <= World.HitboxLayer) return;
+            layers.GetArrayElementAtIndex(World.HitboxLayer).stringValue = "Hitbox";
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
 
         static void BuildNetwork(NetworkObject playerPrefab, NetworkObject matchPrefab)
         {

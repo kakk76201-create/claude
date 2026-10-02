@@ -73,7 +73,9 @@ namespace MakeupSniper
                 File.WriteAllText(outPath + ".code", code);
                 Write("HOSTED port=" + net.Port + " code=" + code + " lanCode=" + net.DirectCode + " adapters=" + net.Adapters.Count);
                 Capture("01-lobby-host");
-                while (CountPlayers() < 2)
+                int expected = 2;
+                int.TryParse(Arg("-ms-players") ?? "2", out expected);
+                while (CountPlayers() < expected)
                 {
                     if (Time.realtimeSinceStartup > deadline) { Fail("guest did not join"); yield break; }
                     yield return null;
@@ -119,7 +121,7 @@ namespace MakeupSniper
                         }
                         break;
                     case MatchState.Shoot:
-                        if (Once("shoot" + m.Round)) StartCoroutine(me.IsModelNow ? ModelScript(m.Round) : ShooterScript(m.Round));
+                        if (Once("shoot" + m.Round)) StartCoroutine(me.IsModelNow ? ModelScript(m.Round) : (Arg("-ms-splat") != null ? SplatScript(m.Round) : ShooterScript(m.Round)));
                         if (role == "host" && m.RoundTime > 17f && Once("skip" + m.Round)) me.CmdHost((byte)HostCommand.Skip, 0);
                         break;
                     case MatchState.Reveal:
@@ -166,6 +168,7 @@ namespace MakeupSniper
             if (bound == m) return;
             bound = m;
             m.BannerShown += (text, style, s) => banners.Add(text);
+            m.VisionGranted += (seconds, option) => Write("VISION seconds=" + seconds + " option=" + option);
         }
 
         static int CountPlayers()
@@ -201,6 +204,29 @@ namespace MakeupSniper
             yield return WaitRoundTime(13.5f);
             me.CmdModelAction((byte)ModelAction.Smear);
             Write("MODEL smear t=" + Match.Instance.RoundTime.ToString("0.00"));
+        }
+
+        /// <summary>Стрелок-хулиган: забрызгивает другого стрелка из базуки (тот должен увидеть «видение»).</summary>
+        IEnumerator SplatScript(int round)
+        {
+            var me = PlayerAgent.Local;
+            Write("SPLATTER round=" + round);
+            yield return WaitRoundTime(2.0f);
+            me.CmdSelect(2);
+            yield return WaitRoundTime(3.5f);
+            PlayerAgent victim = null;
+            foreach (var a in PlayerAgent.All)
+                if (a != null && a != me && a.Slot != 0 && !a.IsModelNow) victim = a;
+            if (victim == null) { Write("SPLAT no victim"); yield break; }
+            Vector3 origin = me.cameraAnchor.position;
+            Vector3 target = victim.transform.position + Vector3.up * 1.0f;
+            float t = Vector3.Distance(origin, target) / 24f;
+            target += Vector3.up * 0.5f * 9.81f * t * t;
+            var head = World.Instance.Head(0);
+            me.CmdFire(2, origin, (target - origin).normalized, head.Yaw, head.Pitch);
+            Write("SPLAT fire at slot " + victim.Slot);
+            yield return WaitRoundTime(10.0f);
+            Fire(me, 2, new Vector2(0.31f, 0.43f), 24f);
         }
 
         /// <summary>Стрелок: помада в нос, выстрел в ладонь, в уворот, тушь, румяна, ластик.</summary>
@@ -306,7 +332,9 @@ namespace MakeupSniper
         {
             // что должно было случиться за матч (оба раунда)
             var missing = new List<string>();
-            foreach (string expect in new[] { "В ЛАДОНЬ", "УВОРОТ", "В ГЛАЗ", "размазала" })
+            var expected = new List<string> { "В ЛАДОНЬ", "УВОРОТ", "В ГЛАЗ", "размазала" };
+            if (Arg("-ms-expect-splat") != null) expected.Add("ЗАБРЫЗГАН");
+            foreach (string expect in expected)
                 if (!banners.Exists(b => b.Contains(expect))) missing.Add(expect);
             Write(missing.Count == 0 ? "CHECK banners ok" : "CHECK banners missing: " + string.Join(", ", missing));
             Write("DONE");

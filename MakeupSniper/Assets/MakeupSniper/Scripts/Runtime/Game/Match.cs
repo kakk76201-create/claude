@@ -156,7 +156,7 @@ namespace MakeupSniper
             public PaintColor color;
             public byte owner, mult;
             public float life;
-            public Collider ownCollider;
+            public PlayerAgent shooter;
         }
 
         struct PoseSample { public float time, yaw, pitch; }
@@ -860,7 +860,7 @@ namespace MakeupSniper
             }
 
             PaintColor color = wd.eraser ? PaintColor.None : wd.color;
-            Collider own = agent.GetComponent<Collider>();
+            PlayerAgent own = agent;
             Vector3 muzzle = origin + dir * 0.6f;
             if (wd.kind == WeaponKind.Hitscan)
             {
@@ -874,7 +874,7 @@ namespace MakeupSniper
             }
             else
             {
-                var p = new Proj { id = nextProjectileId++, pos = muzzle, vel = dir * wd.projectileSpeed, weapon = wd, color = color, owner = agent.Slot, mult = mult, life = 5f, ownCollider = own };
+                var p = new Proj { id = nextProjectileId++, pos = muzzle, vel = dir * wd.projectileSpeed, weapon = wd, color = color, owner = agent.Slot, mult = mult, life = 5f, shooter = own };
                 projectiles.Add(p);
                 PresentProjectile(p.id, p.pos, p.vel, 9.81f * wd.gravityScale, color, wd.projectileSize);
                 RpcProjectile(p.id, p.pos, p.vel, 9.81f * wd.gravityScale, (byte)color, wd.projectileSize);
@@ -886,7 +886,7 @@ namespace MakeupSniper
         /// Луч с позой головы, которую видел стрелок (в пределах того, что голова реально делала
         /// последние полсекунды). Спорные попадания решаются в пользу стрелка, как в GDD.
         /// </summary>
-        bool RaycastWithSeenPose(Ray ray, float distance, Collider ignore, float seenYaw, float seenPitch, out RaycastHit hit)
+        bool RaycastWithSeenPose(Ray ray, float distance, PlayerAgent ignore, float seenYaw, float seenPitch, out RaycastHit hit)
         {
             var w = World.Instance;
             HeadRig head = w != null ? w.Head(0) : null;
@@ -918,7 +918,8 @@ namespace MakeupSniper
             return any;
         }
 
-        bool RaycastIgnoring(Ray ray, float distance, Collider ignore, out RaycastHit best)
+        /// <summary>Ближайшее попадание, не считая самого стрелка (его капсулы и мишени).</summary>
+        bool RaycastIgnoring(Ray ray, float distance, PlayerAgent ignore, out RaycastHit best)
         {
             best = default(RaycastHit);
             int n = Physics.RaycastNonAlloc(ray, hitBuffer, distance, ~(1 << 2), QueryTriggerInteraction.Ignore);
@@ -926,7 +927,7 @@ namespace MakeupSniper
             bool found = false;
             for (int i = 0; i < n; i++)
             {
-                if (hitBuffer[i].collider == ignore) continue;
+                if (ignore != null && hitBuffer[i].collider.GetComponentInParent<PlayerAgent>() == ignore) continue;
                 if (hitBuffer[i].distance < bestDist) { bestDist = hitBuffer[i].distance; best = hitBuffer[i]; found = true; }
             }
             return found;
@@ -944,7 +945,7 @@ namespace MakeupSniper
                 Vector3 step = next - p.pos;
                 float len = step.magnitude;
                 RaycastHit hit;
-                if (len > 1e-5f && RaycastIgnoring(new Ray(p.pos, step / len), len + 0.02f, p.ownCollider, out hit))
+                if (len > 1e-5f && RaycastIgnoring(new Ray(p.pos, step / len), len + 0.02f, p.shooter, out hit))
                 {
                     projectiles.RemoveAt(i);
                     PresentProjectileEnd(p.id);
