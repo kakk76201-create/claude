@@ -110,6 +110,9 @@ namespace MakeupSniper
                 run = kb.leftShiftKey.isPressed;
                 jump = kb.spaceKey.wasPressedThisFrame;
             }
+            // зум считаем до поворота камеры, чтобы в прицеле мышь двигалась медленнее
+            Zoomed = !blocked && mouse != null && mouse.rightButton.isPressed && w != null
+                     && WeaponIndex < w.weapons.Length && w.weapons[WeaponIndex].canZoom;
             if (!blocked && mouse != null)
             {
                 Vector2 d = mouse.delta.ReadValue() * lookPerPixel * Sensitivity * (Zoomed ? 0.3f : 1f);
