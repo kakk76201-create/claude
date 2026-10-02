@@ -25,7 +25,7 @@ namespace MakeupSniper
                 case PaintColor.Red: return "красный";
                 case PaintColor.Pink: return "розовый";
                 case PaintColor.Black: return "чёрный";
-                default: return "нет";
+                default: return "чисто";
             }
         }
     }

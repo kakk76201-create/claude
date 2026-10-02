@@ -5,7 +5,9 @@ namespace MakeupSniper
 {
     /// <summary>
     /// Меш головы. Главное архитектурное решение из GDD: лицо — не UV-развёртка сложного меша.
-    /// UV передней половины запекается фронтальной проекцией: uv = localPos.xy / faceSize + 0.5.
+    /// UV передней половины запекается фронтальной проекцией: uv = (−localPos.x, localPos.y) / faceSize + 0.5.
+    /// Ось x отражена: тогда лицо на голове выглядит так же, как картинка референса (как фото),
+    /// и «левая щека» на картинке — это левая щека Модели.
     /// Задняя половина берёт один пиксель кожи из угла текстуры.
     /// </summary>
     public static class HeadMeshFactory
@@ -63,7 +65,7 @@ namespace MakeupSniper
                     float phi = 2f * Mathf.PI * j / lon;
                     var p = new Vector3(ring * Mathf.Cos(phi), ring * Mathf.Sin(phi), z);
                     verts.Add(p);
-                    uvs.Add(projectUv ? new Vector2(p.x / faceSize + 0.5f, p.y / faceSize + 0.5f) : BackUv);
+                    uvs.Add(projectUv ? new Vector2(-p.x / faceSize + 0.5f, p.y / faceSize + 0.5f) : BackUv);
                 }
             }
             for (int r = 0; r < rows - 1; r++)

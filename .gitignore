@@ -28,3 +28,6 @@
 /MakeupSniper/sysinfo.txt
 *.apk
 *.aab
+
+# Сборки игры
+/Builds/

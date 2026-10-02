@@ -1,6 +1,6 @@
 {
   "name": "MakeupSniper.Editor",
   "rootNamespace": "MakeupSniper.EditorTools",
-  "references": ["MakeupSniper.Runtime", "Unity.InputSystem", "UnityEngine.UI"],
+  "references": ["MakeupSniper.Runtime", "Unity.InputSystem", "UnityEngine.UI", "FishNet.Runtime", "GameKit.Dependencies", "com.rlabrecque.steamworks.net", "FishySteamworks"],
   "includePlatforms": ["Editor"]
 }

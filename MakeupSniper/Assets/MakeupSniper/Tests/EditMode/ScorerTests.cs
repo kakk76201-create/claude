@@ -104,7 +104,7 @@ namespace MakeupSniper.Tests
             {
                 if (v[i].z <= 0.001f) continue;
                 front++;
-                Assert.AreEqual(v[i].x / 0.7f + 0.5f, uv[i].x, 1e-4f);
+                Assert.AreEqual(-v[i].x / 0.7f + 0.5f, uv[i].x, 1e-4f);
                 Assert.AreEqual(v[i].y / 0.7f + 0.5f, uv[i].y, 1e-4f);
             }
             Assert.Greater(front, 100);

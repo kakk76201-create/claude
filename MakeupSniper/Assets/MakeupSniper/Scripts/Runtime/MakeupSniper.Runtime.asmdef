@@ -1,6 +1,7 @@
 {
   "name": "MakeupSniper.Runtime",
   "rootNamespace": "MakeupSniper",
-  "references": ["Unity.InputSystem", "UnityEngine.UI"],
+  "references": ["Unity.InputSystem", "UnityEngine.UI", "FishNet.Runtime", "GameKit.Dependencies", "com.rlabrecque.steamworks.net", "FishySteamworks"],
+  "includePlatforms": ["Editor", "WindowsStandalone64", "WindowsStandalone32", "LinuxStandalone64", "macOSStandalone"],
   "autoReferenced": true
 }

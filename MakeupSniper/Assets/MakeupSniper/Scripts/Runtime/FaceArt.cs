@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace MakeupSniper
 {
-    /// <summary>Форма кисти. Kiss — отпечаток губ, Blush — мягкое пятно с брызгами, Smudge — неровная клякса.</summary>
-    public enum BrushKind { Kiss, Blush, Smudge }
+    /// <summary>Форма кисти. Kiss — отпечаток губ, Blush — мягкое пятно с брызгами, Smudge — клякса,
+    /// Stripe — полоса туши, Smear — мазок ладонью, Eraser — тональник (возвращает чистую кожу).</summary>
+    public enum BrushKind { Kiss, Blush, Smudge, Stripe, Smear, Eraser }
 
     /// <summary>
     /// Всё, что рисуется кодом: базовое лицо, кисти макияжа, картинки референсов.
@@ -117,10 +118,42 @@ namespace MakeupSniper
 
         // ---------- кисти ----------
 
+        /// <summary>Полоса туши: вытянутая по x, с заострёнными концами и «щетинками».</summary>
+        public static float StripeAlpha(float x, float y)
+        {
+            float ax = Mathf.Abs(x);
+            if (ax >= 1f) return 0f;
+            // к концам полоса сужается
+            float width = 0.95f * Mathf.Pow(1f - ax * ax * ax, 0.5f);
+            float a = 1f - PixelCanvas.Smooth(width - 0.18f, width, Mathf.Abs(y));
+            float bristles = 0.78f + 0.22f * Mathf.Abs(Mathf.Sin(y * 23f + Mathf.Floor(x * 9f) * 1.7f));
+            return a * bristles;
+        }
+
+        /// <summary>Мазок ладонью: широкая мягкая полоса, неровная по краям.</summary>
+        public static float SmearAlpha(float x, float y)
+        {
+            float ax = Mathf.Abs(x);
+            if (ax >= 1f) return 0f;
+            float edge = 0.8f + 0.12f * Mathf.Sin(x * 11f) + 0.06f * Mathf.Sin(x * 29f + 1.3f);
+            float a = 1f - PixelCanvas.Smooth(edge - 0.35f, edge, Mathf.Abs(y));
+            float fade = 1f - PixelCanvas.Smooth(0.55f, 1f, ax);   // к концам мазок бледнеет
+            float streaks = 0.7f + 0.3f * Mathf.Abs(Mathf.Sin(y * 17f));
+            return a * fade * streaks;
+        }
+
+        /// <summary>Маска ластика: мягкий круг (сам цвет берётся из чистого лица шейдером).</summary>
+        public static float EraserAlpha(float x, float y)
+        {
+            float d = Mathf.Sqrt(x * x + y * y);
+            return 1f - PixelCanvas.Smooth(0.7f, 1f, d);
+        }
+
         /// <summary>Кисть с уже запечённым цветом: квадратная текстура, прозрачная вне формы.</summary>
         public static Texture2D CreateBrush(BrushKind kind, PaintColor color, int size)
         {
             Color32 col = PaintColors.ToColor(color);
+            if (kind == BrushKind.Eraser) col = new Color32(255, 255, 255, 255);
             var c = new PixelCanvas(size, new Color32(col.r, col.g, col.b, 0));
             var mid = new Vector2(0.5f, 0.5f);
             switch (kind)
@@ -136,6 +169,15 @@ namespace MakeupSniper
                         c.Ellipse(mid + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * d, new Vector2(r, r), col, 0.8f, 0.25f);
                     }
                     break;
+                case BrushKind.Stripe:
+                    c.BlendShape(mid, new Vector2(0.49f, 0.49f), 0f, col, 0.96f, StripeAlpha);
+                    break;
+                case BrushKind.Smear:
+                    c.BlendShape(mid, new Vector2(0.49f, 0.49f), 0f, col, 0.85f, SmearAlpha);
+                    break;
+                case BrushKind.Eraser:
+                    c.BlendShape(mid, new Vector2(0.49f, 0.49f), 0f, col, 1f, EraserAlpha);
+                    break;
                 default:
                     c.BlendShape(mid, new Vector2(0.46f, 0.46f), 0f, col, 0.96f, BlobAlpha);
                     break;
@@ -150,8 +192,15 @@ namespace MakeupSniper
             {
                 case BrushKind.Kiss: return 1.35f;
                 case BrushKind.Blush: return 1.45f;
+                case BrushKind.Eraser: return 1.05f;
                 default: return 1.1f;
             }
+        }
+
+        /// <summary>Вытянутые кисти рисуются прямоугольником: длина × ширина.</summary>
+        public static bool IsElongated(BrushKind kind)
+        {
+            return kind == BrushKind.Stripe || kind == BrushKind.Smear;
         }
 
         // ---------- картинка референса ----------
@@ -159,9 +208,29 @@ namespace MakeupSniper
         public static Texture2D CreateReferencePreview(ReferenceData reference, int size, float faceRadiusUv)
         {
             var c = DrawBaseFace(size, faceRadiusUv);
+            // грязь, которая будет на лице в начале раунда (её надо стереть)
+            if (reference.startDirt != null)
+                foreach (var d in reference.startDirt)
+                {
+                    Color32 dc = PaintColors.ToColor(d.color);
+                    if (d.style == ZoneStyle.Kiss) c.BlendShape(d.center, new Vector2(d.radius.x, d.radius.x * 0.66f), 20f, dc, 0.55f, (x, y) => LipsAlpha(x, y * 0.78f, true));
+                    else c.BlendShape(d.center, d.radius, 0f, dc, 0.55f, BlobAlpha);
+                }
             foreach (var z in reference.zones)
             {
                 Color32 col = PaintColors.ToColor(z.color);
+                if (z.color == PaintColor.None)
+                {
+                    // «стереть»: голубое кольцо вокруг места, которое должно стать чистым
+                    var ring = new Color32(70, 170, 235, 255);
+                    c.BlendShape(z.center, z.radius, 0f, ring, 0.95f, (x, y) =>
+                    {
+                        float d = Mathf.Sqrt(x * x + y * y);
+                        bool dash = Mathf.Repeat(Mathf.Atan2(y, x) * 4f, 1.2f) < 0.75f;
+                        return d > 0.86f && d < 1f && dash ? 1f : 0f;
+                    });
+                    continue;
+                }
                 switch (z.style)
                 {
                     case ZoneStyle.Soft:
@@ -175,6 +244,57 @@ namespace MakeupSniper
                     case ZoneStyle.Kiss:
                         c.BlendShape(z.center, new Vector2(z.radius.x, z.radius.x * 0.66f), 20f, col, 0.95f, (x, y) => LipsAlpha(x, y * 0.78f, true));
                         break;
+                    case ZoneStyle.Whiskers:
+                    {
+                        // три уса веером от центра зоны наружу (зона — щека)
+                        float side = z.center.x < 0.5f ? -1f : 1f;
+                        for (int k = -1; k <= 1; k++)
+                        {
+                            float ang = (side < 0f ? 180f : 0f) + k * 14f * side;
+                            Vector2 dir = new Vector2(Mathf.Cos(ang * Mathf.Deg2Rad), Mathf.Sin(ang * Mathf.Deg2Rad));
+                            Vector2 mid2 = z.center + dir * z.radius.x * 0.15f + new Vector2(0f, k * z.radius.y * 0.45f);
+                            c.BlendShape(mid2, new Vector2(z.radius.x * 0.95f, 0.011f), ang + k * 6f * side, col, 0.95f, StripeAlpha);
+                        }
+                        break;
+                    }
+                    case ZoneStyle.Freckles:
+                        for (int k = 0; k < 22; k++)
+                        {
+                            float fx = (Hash(k, 7f) * 2f - 1f) * 0.9f, fy = (Hash(k, 11f) * 2f - 1f) * 0.9f;
+                            if (fx * fx + fy * fy > 0.85f) continue;
+                            float fr = 0.006f + 0.006f * Hash(k, 13f);
+                            c.Ellipse(z.center + new Vector2(fx * z.radius.x, fy * z.radius.y), new Vector2(fr, fr), col, 0.9f, 0.3f);
+                        }
+                        break;
+                    case ZoneStyle.Tear:
+                        // капля-слеза под глазом
+                        c.BlendShape(z.center, new Vector2(z.radius.x * 0.6f, z.radius.y), 0f, col, 0.95f, (x, y) =>
+                        {
+                            float w = Mathf.Lerp(1f, 0.15f, Mathf.Clamp01((y + 1f) * 0.5f));
+                            return Mathf.Abs(x) < w ? 1f - PixelCanvas.Smooth(0.8f, 1f, Mathf.Sqrt(x * x / (w * w) * 0.6f + y * y * 0.5f)) : 0f;
+                        });
+                        break;
+                    case ZoneStyle.Patch:
+                    {
+                        // пиратская повязка: круг на глазу и ремешок через лоб
+                        c.BlendShape(z.center, z.radius, 0f, col, 0.97f, BlobAlpha);
+                        Vector2 a1 = z.center + new Vector2(-z.radius.x * 0.7f, z.radius.y * 0.7f);
+                        Vector2 a2 = new Vector2(0.5f - (z.center.x - 0.5f) * 1.6f, 0.80f);
+                        c.Stroke(new[] { a1, Vector2.Lerp(a1, a2, 0.5f) + new Vector2(0f, 0.03f), a2 }, 0.012f, col);
+                        Vector2 b1 = z.center + new Vector2(z.radius.x * 0.8f, z.radius.y * 0.3f);
+                        c.Stroke(new[] { b1, new Vector2(z.center.x + z.radius.x * 2.2f, z.center.y + 0.02f) }, 0.012f, col);
+                        break;
+                    }
+                    case ZoneStyle.Stripes:
+                    {
+                        // тигровые полоски: три наклонные полосы внутри зоны
+                        for (int k = -1; k <= 1; k++)
+                        {
+                            Vector2 p = z.center + new Vector2(k * z.radius.x * 0.55f, 0f);
+                            c.BlendShape(p, new Vector2(z.radius.y * 0.95f, z.radius.x * 0.16f), 75f + k * 8f, col, 0.95f, StripeAlpha);
+                        }
+                        break;
+                    }
                     default:
                         c.BlendShape(z.center, z.radius, 0f, col, 0.94f, BlobAlpha);
                         c.BlendShape(z.center + new Vector2(-z.radius.x * 0.3f, z.radius.y * 0.3f), z.radius * 0.28f, -30f,
