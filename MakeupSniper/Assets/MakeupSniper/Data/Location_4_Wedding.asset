@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c04cc15f731ae4eb7f4430cdca6ac8, type: 3}
+  m_Name: Location_4_Wedding
+  m_EditorClassIdentifier: MakeupSniper.Runtime::MakeupSniper.LocationDef
+  displayName: "\u0421\u0432\u0430\u0434\u044C\u0431\u0430 (\u0431\u043E\u0441\u0441)"
+  description: "\u041D\u0435\u0432\u0435\u0441\u0442\u0430 \u0438 \u0436\u0435\u043D\u0438\u0445 \u0441\u0440\u0430\u0437\u0443, 90 \u0441\u0435\u043A\u0443\u043D\u0434. \u0414\u0432\u043E\u0435 \u0433\u043E\u0441\u0442\u0435\u0439 \u043E\u0431\u043E\u0440\u0430\u0447\u0438\u0432\u0430\u044E\u0442\u0441\u044F. \u041D\u0430\u043A\u0440\u0430\u0441\u0438\u0442\u044C \u043D\u0435\u0432\u0435\u0441\u0442\u0443, \u0441\u0442\u0435\u0440\u0435\u0442\u044C \u0441 \u0436\u0435\u043D\u0438\u0445\u0430 \u0432\u0438\u043D\u043E \u0438 \u0442\u043E\u0440\u0442."
+  seconds: 90
+  gimmick: 3
+  propRoot: Wedding
+  wallColor: {r: 1, g: 0.94, b: 0.96, a: 1}
+  pool:
+  - faces:
+    - {fileID: 11400000, guid: 2a944b7702d911042bbc405e1da3ac8b, type: 2}
+    - {fileID: 11400000, guid: cb54413a84600e04580f2227bf463c0e, type: 2}
+  - faces:
+    - {fileID: 11400000, guid: 6fa9f0f080e19da4fbbf58c07e46cbb9, type: 2}
+    - {fileID: 11400000, guid: 412dffde8c3132643b568e954b770364, type: 2}

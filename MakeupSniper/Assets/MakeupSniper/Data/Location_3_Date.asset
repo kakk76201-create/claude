@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c04cc15f731ae4eb7f4430cdca6ac8, type: 3}
+  m_Name: Location_3_Date
+  m_EditorClassIdentifier: MakeupSniper.Runtime::MakeupSniper.LocationDef
+  displayName: "\u0420\u0435\u0441\u0442\u043E\u0440\u0430\u043D: \u0441\u0432\u0438\u0434\u0430\u043D\u0438\u0435"
+  description: "\u0415\u0433\u043E \u0434\u0435\u0432\u0443\u0448\u043A\u0430 \u0438\u043D\u043E\u0433\u0434\u0430 \u043E\u0431\u043E\u0440\u0430\u0447\u0438\u0432\u0430\u0435\u0442\u0441\u044F. \u041F\u043E\u043A\u0430 \u043E\u043D\u0430 \u0441\u043C\u043E\u0442\u0440\u0438\u0442 \u2014 \u043D\u0435 \u0441\u0442\u0440\u0435\u043B\u044F\u0439, \u0438\u043D\u0430\u0447\u0435 \u0437\u0430\u043C\u0435\u0442\u0438\u0442! \u0417\u0430\u043A\u0430\u0437\u044B: \u0441\u043F\u0440\u044F\u0442\u0430\u0442\u044C \u0437\u0430\u0441\u043E\u0441, \u0441\u0442\u0435\u0440\u0435\u0442\u044C \u0447\u0443\u0436\u043E\u0439 \u043F\u043E\u0446\u0435\u043B\u0443\u0439\u2026 \u0438\u043B\u0438 \u043F\u043E\u0434\u0441\u0442\u0430\u0432\u0438\u0442\u044C."
+  seconds: 60
+  gimmick: 2
+  propRoot: Date
+  wallColor: {r: 0.86, g: 0.76, b: 0.72, a: 1}
+  pool:
+  - faces:
+    - {fileID: 11400000, guid: e26c26242282af64a879a520f97a82b9, type: 2}
+  - faces:
+    - {fileID: 11400000, guid: 46491df995ad10047ac05becf6c54c23, type: 2}
+  - faces:
+    - {fileID: 11400000, guid: f8f0d5568abd51d4dbb92bc584b6afb1, type: 2}
+  - faces:
+    - {fileID: 11400000, guid: a093cb6eb6cbfaa42a0f5d9870401d10, type: 2}

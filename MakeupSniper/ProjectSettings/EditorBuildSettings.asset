@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/MakeupSniper/Scenes/Week1.unity
-    guid: 80b417d13fb415a4a9af6a3c00aaa4cd
+    path: Assets/MakeupSniper/Scenes/Game.unity
+    guid: 444489a1b7bf1a94f9978edb7cef2c34
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
